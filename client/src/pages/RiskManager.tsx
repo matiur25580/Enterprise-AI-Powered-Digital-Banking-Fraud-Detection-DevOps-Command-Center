@@ -1,0 +1,1 @@
+export default function RiskManager(){return '<h1>Risk Manager</h1><p>AI fraud scores, 7-day trend chart</p>'}

@@ -1,0 +1,1 @@
+export default function Admin(){return '<h1>Admin Command Center</h1><p>Users, freeze accounts, audit logs</p>'}

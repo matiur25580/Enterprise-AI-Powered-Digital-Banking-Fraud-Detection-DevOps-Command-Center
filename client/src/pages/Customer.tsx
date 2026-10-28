@@ -1,0 +1,1 @@
+export default function Customer(){return '<h1>Customer Dashboard</h1><p>Send money, statements, PDF download</p>'}

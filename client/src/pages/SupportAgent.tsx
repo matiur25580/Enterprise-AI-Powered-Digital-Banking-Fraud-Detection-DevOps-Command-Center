@@ -1,0 +1,1 @@
+export default function SupportAgent(){return '<h1>Support Agent</h1><p>KYC verify, customer tickets</p>'}
