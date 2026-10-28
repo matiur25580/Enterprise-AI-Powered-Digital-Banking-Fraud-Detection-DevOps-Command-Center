@@ -1,0 +1,1 @@
+export default function Register(){return 'Register with Confirm Password + SUBMIT button';}
