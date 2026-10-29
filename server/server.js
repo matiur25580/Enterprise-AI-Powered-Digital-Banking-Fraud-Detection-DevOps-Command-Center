@@ -30,3 +30,6 @@ app.use('/api/settlement',require('./src/routes/settlement'));
 app.use('/api/chatbot',require('./src/routes/chatbot'));
 app.use('/api/deposits',require('./src/routes/deposits'));
 app.use('/api/analytics',require('./src/routes/analytics'));
+
+const mongoose=require("mongoose");
+mongoose.connect(process.env.MONGO_URI).then(()=>console.log("MongoDB connected")).catch(e=>console.log("DB error:"+e.message));
