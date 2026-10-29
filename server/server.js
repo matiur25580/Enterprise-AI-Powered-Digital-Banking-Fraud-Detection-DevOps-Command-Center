@@ -20,3 +20,8 @@ const io=new Server(server,{cors:{origin:'*'}});
 require('./src/routes/realtime')(io);
 const PORT=process.env.PORT||5000;
 server.listen(PORT,()=>console.log('Server+WS on '+PORT));
+app.use('/api/loans',require('./src/routes/loans'));
+app.use('/api/wallet',require('./src/routes/wallet'));
+app.use('/api/compliance',require('./src/routes/compliance'));
+app.use('/api/notifications',require('./src/routes/notifications'));
+app.use('/api/branches',require('./src/routes/branches'));
