@@ -2,6 +2,7 @@ const express=require('express');
 const r=express.Router();
 const {sendOTP}=require('../utils/sendEmail');
 let users=[];
+let otpStore={};
 function genUID(name,dob,role){
   const X=((role||'C')[0]||'X').toUpperCase();
   const parts=(name||'X X').trim().split(/\s+/);
@@ -30,7 +31,16 @@ r.post('/login',(req,res)=>{
 });
 r.post('/send-otp',async(req,res)=>{
   const otp=Math.floor(100000+Math.random()*900000);
+  otpStore[req.body.email]=String(otp);
   try{ await sendOTP(req.body.email,otp); res.json({msg:'OTP sent'}); }
-  catch(e){ console.log('OTP email error:', e.message); res.json({msg:'OTP generated',otp,emailError:e.message}); }
+  catch(e){ console.log('OTP email error:', e.message); res.json({msg:'OTP generated',emailError:e.message}); }
+});
+r.post('/verify-otp',(req,res)=>{
+  const {email,otp}=req.body;
+  if(otpStore[email] && otpStore[email]===String(otp)){
+    delete otpStore[email];
+    return res.json({msg:'OTP verified'});
+  }
+  return res.status(400).json({error:'Wrong OTP. Please try again.'});
 });
 module.exports=r;
