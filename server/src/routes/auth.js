@@ -8,8 +8,7 @@ function genUID(name,dob,role){
   const Y=(parts[0][0]||'X').toUpperCase();
   const Z=(parts.length>1?parts[parts.length-1][0]:'X').toUpperCase();
   const d=(dob||'01012000').replace(/[^0-9]/g,'').padEnd(8,'0').slice(0,8);
-  const DD=d.slice(0,2), MM=d.slice(2,4), YYYY=d.slice(4,8);
-  return X+Y+Z+DD+MM+YYYY;
+  return X+Y+Z+d.slice(0,2)+d.slice(2,4)+d.slice(4,8);
 }
 r.post('/register',(req,res)=>{
   const {name,email,password,role,dob}=req.body;
@@ -22,15 +21,16 @@ r.post('/register',(req,res)=>{
   res.json({msg:'Registration successful',uid,message:'Save it for future further reference',user:u});
 });
 r.post('/login',(req,res)=>{
-  const {email,password}=req.body;
+  const {email,password,role}=req.body;
   const u=users.find(x=>x.email===email);
   if(!u) return res.status(400).json({error:"This email doesn't exist. Please first register."});
-  if(u.password!==password) return res.status(400).json({error:'Invalid credentials'});
+  if(u.password!==password) return res.status(400).json({error:'Wrong password. Please try again.'});
+  if(role && u.role!==role) return res.status(400).json({error:'Role mismatch. You registered as '+u.role+'. Please select correct role.'});
   res.json({msg:'Login successful',user:u});
 });
 r.post('/send-otp',async(req,res)=>{
   const otp=Math.floor(100000+Math.random()*900000);
-  try{ await sendOTP(req.body.email,otp); res.json({msg:'OTP sent',otp}); }
+  try{ await sendOTP(req.body.email,otp); res.json({msg:'OTP sent'}); }
   catch(e){ console.log('OTP email error:', e.message); res.json({msg:'OTP generated',otp,emailError:e.message}); }
 });
 module.exports=r;
