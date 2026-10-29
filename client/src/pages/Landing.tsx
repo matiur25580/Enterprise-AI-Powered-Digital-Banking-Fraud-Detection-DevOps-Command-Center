@@ -45,7 +45,7 @@ export default function Landing(){
         <h2 style={{textAlign:'center'}}>Four portals, one command center</h2>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
           {[['Admin','#dc2626','Full command center: users, branches, audit'],['RiskManager','#7c3aed','AI fraud alerts, block/approve'],['SupportAgent','#0284c7','Tickets, KYC verify, customer 360'],['Customer','#16a34a','Transfer, statements, smart insights']].map((r,i)=>
-            <div key={i} style={{...card,borderTop:}}><b style={{color:r[1]}}>{r[0]}</b><p style={{fontSize:'12px',color:'#94a3b8',margin:'4px 0'}}>{r[2]}</p></div>
+            <div key={i} style={{...card,borderTop:`3px solid ${r[1]}`}}><b style={{color:r[1]}}>{r[0]}</b><p style={{fontSize:'12px',color:'#94a3b8',margin:'4px 0'}}>{r[2]}</p></div>
           )}
         </div>
       </div>

@@ -42,7 +42,7 @@ export default function VerifyOtp(){
         <div style={{display:'flex',gap:'8px',justifyContent:'center',margin:'16px 0'}}>
           {otp.map((d,i)=><input key={i} id={'otp-'+i} value={d} onChange={e=>set(i,e.target.value)} maxLength={1} style={otpStyle} />)}
         </div>
-        <p style={{color:timer>0?'#94a3b8':'#dc2626',fontSize:'13px'}}>{timer>0?:'OTP expired'}</p>
+        <p style={{color:timer>0?'#94a3b8':'#dc2626',fontSize:'13px'}}>{timer>0?('Valid for '+mm+':'+String(ss).padStart(2,'0')):'OTP expired'}</p>
         {timer===0&&<button onClick={sendOtp} style={{padding:'8px 20px',borderRadius:'8px',border:'none',background:'#7c3aed',color:'#fff',marginBottom:'8px'}}>Resend OTP</button>}
         <br/>
         <button onClick={verify} style={{width:'100%',padding:'12px',borderRadius:'10px',border:'none',background:'#2563eb',color:'#fff',fontWeight:'bold',marginTop:'8px'}}>Verify</button>
