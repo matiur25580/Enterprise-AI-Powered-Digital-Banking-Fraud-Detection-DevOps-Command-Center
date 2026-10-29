@@ -2,14 +2,12 @@ import { useState } from 'react';
 export default function Register(){
   const [theme,setTheme]=useState('dark');
   const [form,setForm]=useState({name:'',email:'',phone:'',dob:'',role:'Customer',password:'',confirm:''});
-  const [msg,setMsg]=useState('');
   const [err,setErr]=useState('');
-  const [uid,setUid]=useState('');
   const dark=theme==='dark';
   const inputStyle={width:'100%',padding:'12px',margin:'8px 0',borderRadius:'10px',fontSize:'14px',boxSizing:'border-box' as const,
     background:dark?'#1e293b':'#ffffff',color:dark?'#ffffff':'#000000',border:dark?'1px solid #475569':'1px solid #cbd5e1'};
   const submit=async()=>{
-    setErr(''); setMsg(''); setUid('');
+    setErr('');
     if(form.password!==form.confirm){ setErr('Passwords do not match'); return; }
     try{
       const api=(import.meta as any).env.VITE_API_URL||'http://localhost:5000';
@@ -17,23 +15,9 @@ export default function Register(){
         body:JSON.stringify({name:form.name,email:form.email,password:form.password,role:form.role,dob:form.dob})});
       const data=await res.json();
       if(!res.ok){ setErr(data.error||'Registration failed'); return; }
-      setUid(data.uid);
-      setMsg(data.msg+'. '+data.message);
+      window.location.href='/success?uid='+encodeURIComponent(data.uid)+'&name='+encodeURIComponent(form.name);
     }catch(e){ setErr('Server error. Try again.'); }
   };
-  if(uid){
-    return(
-      <div style={{background:dark?'#0a1628':'#f1f5f9',minHeight:'100vh',display:'flex',justifyContent:'center',alignItems:'center',padding:'16px'}}>
-        <div style={{background:dark?'#111f3a':'#fff',color:dark?'#fff':'#000',padding:'32px',borderRadius:'16px',maxWidth:'400px',textAlign:'center'}}>
-          <h2 style={{color:'#16a34a'}}>✅ Registration Successful!</h2>
-          <p>Your Unique ID:</p>
-          <h2 style={{background:dark?'#1e293b':'#f1f5f9',padding:'12px',borderRadius:'10px',letterSpacing:'1px'}}>{uid}</h2>
-          <p style={{color:'#f59e0b',fontWeight:'bold'}}>⚠️ Save it for future further reference</p>
-          <button onClick={()=>window.location.href='/login'} style={{width:'100%',padding:'12px',borderRadius:'10px',border:'none',background:'#2563eb',color:'#fff',fontWeight:'bold',marginTop:'12px'}}>Go to Login</button>
-        </div>
-      </div>
-    );
-  }
   return(
     <div style={{background:dark?'#0a1628':'#f1f5f9',color:dark?'#fff':'#0a1628',minHeight:'100vh',display:'flex',justifyContent:'center',alignItems:'center',padding:'16px'}}>
       <div style={{background:dark?'#111f3a':'#fff',padding:'28px',borderRadius:'16px',width:'100%',maxWidth:'380px'}}>
@@ -42,7 +26,6 @@ export default function Register(){
           <button onClick={()=>setTheme(dark?'light':'dark')} style={{width:'40px',height:'32px',borderRadius:'8px',cursor:'pointer',background:dark?'#1e293b':'#fff',border:'1px solid #475569'}}>🌙</button>
         </div>
         {err&&<p style={{background:'#fee2e2',color:'#dc2626',padding:'10px',borderRadius:'8px',fontSize:'13px'}}>{err}</p>}
-        {msg&&<p style={{background:'#dcfce7',color:'#16a34a',padding:'10px',borderRadius:'8px',fontSize:'13px'}}>{msg}</p>}
         <input placeholder="Full Name" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} style={inputStyle} />
         <input placeholder="Email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} style={inputStyle} />
         <input placeholder="Contact Number" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} style={inputStyle} />
