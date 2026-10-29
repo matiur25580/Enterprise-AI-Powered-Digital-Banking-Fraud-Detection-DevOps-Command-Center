@@ -3,12 +3,13 @@ const r=express.Router();
 const {sendOTP}=require('../utils/sendEmail');
 let users=[];
 function genUID(name,dob,role){
-  const clean=(name||'X').replace(/[^A-Za-z]/g,'').toUpperCase();
-  const f=clean[0]||'X';
-  const l=clean.length>1?clean[clean.length-1]:'X';
-  const ri=(role||'C')[0].toUpperCase();
-  const d=(dob||'01012000').replace(/[^0-9]/g,'').slice(0,8).padEnd(8,'0');
-  return ri+f+l+d+'-'+Math.floor(1000+Math.random()*9000);
+  const X=((role||'C')[0]||'X').toUpperCase();
+  const parts=(name||'X X').trim().split(/\s+/);
+  const Y=(parts[0][0]||'X').toUpperCase();
+  const Z=(parts.length>1?parts[parts.length-1][0]:'X').toUpperCase();
+  const d=(dob||'01012000').replace(/[^0-9]/g,'').padEnd(8,'0').slice(0,8);
+  const DD=d.slice(0,2), MM=d.slice(2,4), YYYY=d.slice(4,8);
+  return X+Y+Z+DD+MM+YYYY;
 }
 r.post('/register',(req,res)=>{
   const {name,email,password,role,dob}=req.body;
