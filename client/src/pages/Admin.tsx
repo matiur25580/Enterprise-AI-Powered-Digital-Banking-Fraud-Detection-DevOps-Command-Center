@@ -8,6 +8,15 @@ export default function Admin() {
   const [msg, setMsg] = useState('');
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({total:0, customers:0, admins:0});
+  const toggleSuspend=(email:string)=>{
+    setUsers(users.map((u:any)=>u.email===email?{...u,suspended:!u.suspended}:u));
+    const usr=(users as any[]).find((x:any)=>x.email===email);
+    setMsg(email+(usr && !usr.suspended?' suspended':' activated'));
+  };
+  const changeRole=(email:string, newRole:string)=>{
+    setUsers(users.map((u:any)=>u.email===email?{...u,role:newRole}:u));
+    setMsg(email+' role changed to '+newRole);
+  };
   const dark = theme==='dark';
   const card={background:dark?'#111f3a':'#fff',padding:'20px',borderRadius:'16px',margin:'12px 0',boxShadow:'0 4px 12px rgba(0,0,0,0.2)'};
   const stat={flex:1,minWidth:'140px',background:dark?'#1e293b':'#f1f5f9',padding:'16px',borderRadius:'12px',textAlign:'center' as const};
@@ -58,8 +67,16 @@ export default function Admin() {
           <div style={{flex:1,padding:'12px',background:'#fef3c7',borderRadius:'10px',textAlign:'center'}}><b>{stats.admins}</b><br/>Admins</div>
         </div>
         <table style={{width:'100%',fontSize:'12px',borderCollapse:'collapse'}}>
-          <thead><tr><th>Email</th><th>Role</th><th>UID</th></tr></thead>
-          <tbody>{users.map((u:any,i:number)=><tr key={i} style={{borderTop:'1px solid #eee'}}><td>{u.email}</td><td>{u.role}</td><td>{u.uid}</td></tr>)}</tbody>
+          <thead><tr><th>Email</th><th>Role</th><th>UID</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>{users.map((u:any,i:number)=><tr key={i} style={{borderTop:'1px solid #eee'}}>
+          <td>{u.email}</td>
+          <td><select value={u.role} onChange={e=>changeRole(u.email,e.target.value)} style={{padding:'4px',borderRadius:'4px'}}>
+            <option>Customer</option><option>Admin</option><option>RiskManager</option><option>SupportAgent</option>
+          </select></td>
+          <td>{u.uid}</td>
+          <td>{u.suspended?<span style={{color:'#dc2626'}}>Suspended</span>:<span style={{color:'#16a34a'}}>Active</span>}</td>
+          <td><button onClick={()=>toggleSuspend(u.email)} style={{padding:'4px 10px',borderRadius:'6px',border:'none',background:u.suspended?'#16a34a':'#dc2626',color:'#fff',fontSize:'12px'}}>{u.suspended?'Activate':'Suspend'}</button></td>
+        </tr>)}</tbody>
         </table>
       </div>
     </div>
