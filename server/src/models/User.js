@@ -8,4 +8,6 @@ const userSchema = new mongoose.Schema({
   dob: String,
 }, { timestamps: true });
 userSchema.index({ email: 1, role: 1 }, { unique: true });
-module.exports = mongoose.model('User', userSchema);
+const User=mongoose.model('User', userSchema);
+User.syncIndexes().then(()=>console.log('Indexes synced')).catch(()=>{});
+module.exports = User;
