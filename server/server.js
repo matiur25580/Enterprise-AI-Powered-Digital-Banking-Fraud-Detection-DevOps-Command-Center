@@ -25,3 +25,8 @@ app.use('/api/wallet',require('./src/routes/wallet'));
 app.use('/api/compliance',require('./src/routes/compliance'));
 app.use('/api/notifications',require('./src/routes/notifications'));
 app.use('/api/branches',require('./src/routes/branches'));
+app.use('/api/creditScore',require('./src/routes/creditScore'));
+app.use('/api/settlement',require('./src/routes/settlement'));
+app.use('/api/chatbot',require('./src/routes/chatbot'));
+app.use('/api/deposits',require('./src/routes/deposits'));
+app.use('/api/analytics',require('./src/routes/analytics'));
