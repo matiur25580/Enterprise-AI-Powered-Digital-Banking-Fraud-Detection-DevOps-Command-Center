@@ -6,18 +6,13 @@ export default function Admin() {
   const [dt, setDt] = useState(getDateTime());
   const [msg, setMsg] = useState('');
   const dark = theme==='dark';
-  const s={width:'100%',padding:'12px',margin:'8px 0',borderRadius:'10px',fontSize:'14px',boxSizing:'border-box' as const,
-    background:dark?'#1e293b':'#ffffff',color:dark?'#ffffff':'#000000',border:dark?'1px solid #475569':'1px solid #cbd5e1'};
-  const card={background:dark?'#111f3a':'#fff',padding:'20px',borderRadius:'16px',margin:'12px 0'};
+  const card={background:dark?'#111f3a':'#fff',padding:'20px',borderRadius:'16px',margin:'12px 0',boxShadow:'0 4px 12px rgba(0,0,0,0.2)'};
+  const stat={flex:1,minWidth:'140px',background:dark?'#1e293b':'#f1f5f9',padding:'16px',borderRadius:'12px',textAlign:'center' as const};
   useEffect(()=>{ const t=setInterval(()=>setDt(getDateTime()),1000); return ()=>clearInterval(t); },[]);
-  const branches=[
-    {id:'BR001',name:'Kolkata Main',staff:24},
-    {id:'BR002',name:'Delhi South',staff:18},
-  ];
   return (
     <div style={{ background: dark?'#0a0a0a':'#f1f5f9', color: dark?'#fff':'#000', minHeight:'100vh', padding:'20px' }}>
       <SuccessToast msg={msg} onClose={()=>setMsg('')} />
-      <div style={{ background:'#dc2626', color:'#fff', padding:'10px', textAlign:'center', fontWeight:'bold', fontSize:'20px', borderRadius:'10px' }}>ROLE: ADMIN</div>
+      <div style={{ background:'linear-gradient(90deg,#dc2626,#991b1b)', color:'#fff', padding:'14px', textAlign:'center', fontWeight:'bold', fontSize:'20px', borderRadius:'12px' }}>🛡️ ADMIN COMMAND CENTER</div>
       <div style={{ display:'flex', justifyContent:'space-between', marginTop:'10px', flexWrap:'wrap' }}>
         <div><p>Date: {dt.dateStr}</p><p>Time: {dt.timeStr}</p></div>
         <div>
@@ -25,21 +20,25 @@ export default function Admin() {
           <button onClick={()=>setTheme(dark?'light':'dark')} style={{padding:'8px 16px',borderRadius:'8px'}}>🌙/☀️</button>
         </div>
       </div>
-      <div style={card}>
-        <h3>👥 Staff Management</h3>
-        <button onClick={()=>window.location.href='/staff'} style={{...s,background:'#2563eb',color:'#fff',border:'none',fontWeight:'bold'}}>Manage Staff</button>
+      <div style={{display:'flex',gap:'12px',flexWrap:'wrap',margin:'12px 0'}}>
+        <div style={stat}><h3 style={{margin:0,color:'#2563eb'}}>2,847</h3><p style={{margin:0,fontSize:'12px'}}>Total Users</p></div>
+        <div style={stat}><h3 style={{margin:0,color:'#16a34a'}}>.2M</h3><p style={{margin:0,fontSize:'12px'}}>Total Volume</p></div>
+        <div style={stat}><h3 style={{margin:0,color:'#dc2626'}}>12</h3><p style={{margin:0,fontSize:'12px'}}>Fraud Alerts</p></div>
+        <div style={stat}><h3 style={{margin:0,color:'#7c3aed'}}>99.9%</h3><p style={{margin:0,fontSize:'12px'}}>Uptime</p></div>
       </div>
       <div style={card}>
-        <h3>🏦 Branches</h3>
-        {branches.map(b=><div key={b.id} style={{display:'flex',justifyContent:'space-between',padding:'10px 0',borderBottom:'1px solid #334155'}}>
-          <div><b>{b.name}</b><br/><span style={{fontSize:'12px',color:'#94a3b8'}}>{b.id} • {b.staff} staff</span></div>
-          <button onClick={()=>setMsg('Branch '+b.name+' updated')} style={{padding:'8px 16px',borderRadius:'8px',border:'none',background:'#7c3aed',color:'#fff'}}>Manage</button>
-        </div>)}
+        <h3>🏦 Branch Performance</h3>
+        <p>📍 Kolkata Main — .8M • 24 staff • <span style={{color:'#16a34a'}}>▲ 12%</span></p>
+        <p>📍 Delhi South — .2M • 18 staff • <span style={{color:'#16a34a'}}>▲ 8%</span></p>
+        <p>📍 Mumbai West — .2M • 21 staff • <span style={{color:'#dc2626'}}>▼ 3%</span></p>
       </div>
       <div style={card}>
-        <h3>📋 System Health</h3>
-        <p>✅ MongoDB: Connected • ✅ Server: Live • ✅ Uptime: 99.9%</p>
-        <button onClick={()=>setMsg('Audit log exported successfully')} style={{...s,background:'#16a34a',color:'#fff',border:'none',fontWeight:'bold'}}>Export Audit Log</button>
+        <h3>⚡ Quick Actions</h3>
+        <div style={{display:'flex',gap:'10px',flexWrap:'wrap'}}>
+          <button onClick={()=>window.location.href='/staff'} style={{flex:1,padding:'12px',borderRadius:'10px',border:'none',background:'#2563eb',color:'#fff',fontWeight:'bold'}}>👥 Manage Staff</button>
+          <button onClick={()=>setMsg('Audit log exported successfully')} style={{flex:1,padding:'12px',borderRadius:'10px',border:'none',background:'#16a34a',color:'#fff',fontWeight:'bold'}}>📋 Export Audit</button>
+          <button onClick={()=>setMsg('Compliance report generated')} style={{flex:1,padding:'12px',borderRadius:'10px',border:'none',background:'#7c3aed',color:'#fff',fontWeight:'bold'}}>📊 Compliance</button>
+        </div>
       </div>
     </div>
   );
