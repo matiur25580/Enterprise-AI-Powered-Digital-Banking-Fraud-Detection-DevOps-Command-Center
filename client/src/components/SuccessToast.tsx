@@ -12,6 +12,3 @@ export default function SuccessToast({ msg, onClose }: { msg: string, onClose: (
     </div>
   );
 }
-export function showSuccess(setMsg:any, text:string){
-  setMsg(text);
-}
