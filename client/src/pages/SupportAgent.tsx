@@ -7,6 +7,12 @@ export default function SupportAgent() {
   const [user] = useState(()=>{ try{ return JSON.parse(localStorage.getItem('trustshield_user')||'{}'); }catch(e){ return {}; } });
   const [msg, setMsg] = useState('');
   const [search, setSearch] = useState('');
+  const [tickets, setTickets] = useState([
+    {id:'DSP172901', issue:'Wrong amount', email:'rahul@mail.com', status:'Open', priority:'High'},
+    {id:'DSP172902', issue:'Fraud alert', email:'priya@mail.com', status:'Open', priority:'Medium'},
+    {id:'KYC001', issue:'Aadhaar pending', email:'amit@mail.com', status:'Pending', priority:'Low'},
+  ]);
+  const [searchResult, setSearchResult] = useState('');
   const dark = theme==='dark';
   const s={width:'100%',padding:'12px',margin:'8px 0',borderRadius:'10px',fontSize:'14px',boxSizing:'border-box' as const,
     background:dark?'#1e293b':'#ffffff',color:dark?'#ffffff':'#000000',border:dark?'1px solid #475569':'1px solid #cbd5e1'};
@@ -16,6 +22,13 @@ export default function SupportAgent() {
   return (
     <div style={{ background: dark?'#0a0a0a':'#f1f5f9', color: dark?'#fff':'#000', minHeight:'100vh', padding:'20px' }}>
       <SuccessToast msg={msg} onClose={()=>setMsg('')} />
+      <div style={{display:'flex',gap:'10px',margin:'10px 0'}}>
+        <div style={{flex:1,padding:'12px',background:'#dbeafe',borderRadius:'10px',textAlign:'center'}}><b>{tickets.filter(x=>x.status==='Open').length}</b><br/>Open</div>
+        <div style={{flex:1,padding:'12px',background:'#dcfce7',borderRadius:'10px',textAlign:'center'}}><b>{tickets.filter(x=>x.status==='Resolved'||x.status==='Verified').length}</b><br/>Resolved</div>
+        <div style={{flex:1,padding:'12px',background:'#fef3c7',borderRadius:'10px',textAlign:'center'}}><b>{tickets.filter(x=>x.status==='Escalated').length}</b><br/>Escalated</div>
+      </div>
+      {searchResult && <div style={{padding:'10px',background:'#f0fdf4',borderRadius:'8px',margin:'10px 0',fontSize:'13px'}}>{searchResult}</div>}
+      <h3>Ticket Overview</h3>
       {user.uid && <div>UID: {user.uid}</div>}
       <div style={{ background:'linear-gradient(90deg,#0284c7,#0c4a6e)', color:'#fff', padding:'14px', textAlign:'center', fontWeight:'bold', fontSize:'20px', borderRadius:'12px' }}>🎧 CUSTOMER CARE PRO</div>
       <div style={{ display:'flex', justifyContent:'space-between', marginTop:'10px', flexWrap:'wrap' }}>
@@ -34,13 +47,13 @@ export default function SupportAgent() {
       <div style={card}>
         <h3>🔍 360° Customer Search</h3>
         <input placeholder="Search by email / UID / phone" value={search} onChange={e=>setSearch(e.target.value)} style={s} />
-        <button onClick={()=>setMsg('Customer profile loaded: '+search)} style={{...s,background:'#2563eb',color:'#fff',border:'none',fontWeight:'bold'}}>Search Customer</button>
+        <button onClick={()=>{if(!search){setMsg('Enter email to search');return;} setSearchResult('Profile: '+search+' | Status: Verified | Balance: $5,240'); setMsg('Customer profile loaded: '+search);}} style={{...s,background:'#2563eb',color:'#fff',border:'none',fontWeight:'bold'}}>Search Customer</button>
       </div>
       <div style={card}>
         <h3>🎫 Priority Tickets</h3>
-        <p>🔴 <b>DSP172901</b> — Wrong amount 00 • rahul@mail.com <button onClick={()=>setMsg('Ticket DSP172901 resolved')} style={{marginLeft:'8px',padding:'6px 12px',borderRadius:'6px',border:'none',background:'#16a34a',color:'#fff'}}>Resolve</button></p>
-        <p>🟡 <b>DSP172902</b> — Fraud alert • priya@mail.com <button onClick={()=>setMsg('Ticket DSP172902 escalated to Risk')} style={{marginLeft:'8px',padding:'6px 12px',borderRadius:'6px',border:'none',background:'#f59e0b',color:'#fff'}}>Escalate</button></p>
-        <p>🟢 <b>KYC001</b> — Aadhaar pending • amit@mail.com <button onClick={()=>setMsg('KYC KYC001 verified')} style={{marginLeft:'8px',padding:'6px 12px',borderRadius:'6px',border:'none',background:'#7c3aed',color:'#fff'}}>Verify KYC</button></p>
+        <p>🔴 <b>DSP172901</b> — Wrong amount 00 • rahul@mail.com <button onClick={()=>{setTickets(tickets.map(x=>x.id==='DSP172901'?{...x,status:'Resolved'}:x)); setMsg('Ticket DSP172901 resolved');}} style={{marginLeft:'8px',padding:'6px 12px',borderRadius:'6px',border:'none',background:'#16a34a',color:'#fff'}}>Resolve</button></p>
+        <p>🟡 <b>DSP172902</b> — Fraud alert • priya@mail.com <button onClick={()=>{setTickets(tickets.map(x=>x.id==='DSP172902'?{...x,status:'Escalated'}:x)); setMsg('Ticket DSP172902 escalated to Risk');}} style={{marginLeft:'8px',padding:'6px 12px',borderRadius:'6px',border:'none',background:'#f59e0b',color:'#fff'}}>Escalate</button></p>
+        <p>🟢 <b>KYC001</b> — Aadhaar pending • amit@mail.com <button onClick={()=>{setTickets(tickets.map(x=>x.id==='KYC001'?{...x,status:'Verified'}:x)); setMsg('KYC KYC001 verified');}} style={{marginLeft:'8px',padding:'6px 12px',borderRadius:'6px',border:'none',background:'#7c3aed',color:'#fff'}}>Verify KYC</button></p>
       </div>
     </div>
   );
