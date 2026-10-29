@@ -31,6 +31,6 @@ r.post('/login',(req,res)=>{
 r.post('/send-otp',async(req,res)=>{
   const otp=Math.floor(100000+Math.random()*900000);
   try{ await sendOTP(req.body.email,otp); res.json({msg:'OTP sent',otp}); }
-  catch(e){ res.json({msg:'OTP generated',otp}); }
+  catch(e){ console.log('OTP email error:', e.message); res.json({msg:'OTP generated',otp,emailError:e.message}); }
 });
 module.exports=r;
