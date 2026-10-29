@@ -33,3 +33,8 @@ app.use('/api/analytics',require('./src/routes/analytics'));
 
 const mongoose=require("mongoose");
 mongoose.connect(process.env.MONGO_URI).then(()=>console.log("MongoDB connected")).catch(e=>console.log("DB error:"+e.message));
+app.use('/api/kyc',require('./src/routes/kyc'));
+app.use('/api/disputes',require('./src/routes/disputes'));
+app.use('/api/scheduled',require('./src/routes/scheduled'));
+app.use('/api/staff',require('./src/routes/staff'));
+app.use('/api/twofa',require('./src/routes/twofa'));
