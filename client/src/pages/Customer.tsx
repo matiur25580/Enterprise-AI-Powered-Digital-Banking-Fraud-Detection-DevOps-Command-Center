@@ -8,7 +8,7 @@ export default function Customer() {
       <div style={{ background:'#16a34a', color:'#fff', padding:'10px', textAlign:'center', fontWeight:'bold', fontSize:'20px' }}>ROLE: CUSTOMER</div>
       <div style={{ display:'flex', justifyContent:'space-between', marginTop:'10px' }}>
         <h1>Customer - Digital Banking</h1>
-        <button onClick={()=>setTheme(theme==='dark'?'light':'dark')}>🌙/☀️ Theme</button>
+        <button onClick={()=>{localStorage.removeItem("token"); window.location.href="/login";}} style={{marginRight:"10px"}}>Logout</button><button onClick={()=>setTheme(theme==='dark'?'light':'dark')}>🌙/☀️ Theme</button>
       </div>
       <p>{now.toLocaleDateString('en-GB').replaceAll('/','.')} | {now.toLocaleTimeString('en-US',{hour12:true})}</p>
       <p>You are logged in as <b>Customer</b></p>
