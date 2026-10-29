@@ -14,19 +14,25 @@ function genUID(name,dob,role){
 r.post('/register',(req,res)=>{
   const {name,email,password,role,dob}=req.body;
   if(!email||!password) return res.status(400).json({error:'Email and password required'});
-  const exists=users.find(u=>u.email===email);
-  if(exists) return res.status(400).json({error:'This email address already registered. Please login.'});
-  const uid=genUID(name||email,dob,role);
-  const u={uid,name,email,password,role:role||'Customer',dob};
+  const userRole=role||'Customer';
+  const exists=users.find(u=>u.email===email && u.role===userRole);
+  if(exists) return res.status(400).json({error:'This email is already registered as '+userRole+'. Please login or choose a different role.'});
+  const uid=genUID(name||email,dob,userRole);
+  const u={uid,name,email,password,role:userRole,dob};
   users.push(u);
   res.json({msg:'Registration successful',uid,message:'Save it for future further reference',user:u});
 });
 r.post('/login',(req,res)=>{
   const {email,password,role}=req.body;
-  const u=users.find(x=>x.email===email);
-  if(!u) return res.status(400).json({error:"This email doesn't exist. Please first register."});
+  let u;
+  if(role){ u=users.find(x=>x.email===email && x.role===role); }
+  else{ u=users.find(x=>x.email===email); }
+  if(!u){
+    const anyEmail=users.find(x=>x.email===email);
+    if(anyEmail) return res.status(400).json({error:'No '+role+' account with this email. You have: '+users.filter(x=>x.email===email).map(x=>x.role).join(', ')});
+    return res.status(400).json({error:"This email doesn't exist. Please first register."});
+  }
   if(u.password!==password) return res.status(400).json({error:'Wrong password. Please try again.'});
-  if(role && u.role!==role) return res.status(400).json({error:'Role mismatch. You registered as '+u.role+'. Please select correct role.'});
   res.json({msg:'Login successful',user:u});
 });
 r.post('/send-otp',async(req,res)=>{
