@@ -9,6 +9,7 @@ export default function VerifyOtp(){
   const email=params.get('email')||'';
   const uid=params.get('uid')||'';
   const name=params.get('name')||'';
+  const role=params.get('role')||'';
   const otpStyle={width:'44px',height:'52px',textAlign:'center' as const,fontSize:'20px',borderRadius:'10px',
     background:'#1e293b',color:'#fff',border:'1px solid #475569'};
   const set=(i:number,v:string)=>{ const n=[...otp]; n[i]=v.slice(-1); setOtp(n);
@@ -33,7 +34,7 @@ export default function VerifyOtp(){
       const res=await fetch(api+'/api/auth/verify-otp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,otp:code})});
       const data=await res.json();
       if(!res.ok){ setErr(data.error||'Wrong OTP. Please try again.'); return; }
-      window.location.href='/success?uid='+encodeURIComponent(uid)+'&name='+encodeURIComponent(name);
+      window.location.href='/success?uid='+encodeURIComponent(uid)+'&name='+encodeURIComponent(name)+'&role='+encodeURIComponent(role);
     }catch(e){ setErr('Server error'); }
   };
   const mm=Math.floor(timer/60); const ss=timer%60;
