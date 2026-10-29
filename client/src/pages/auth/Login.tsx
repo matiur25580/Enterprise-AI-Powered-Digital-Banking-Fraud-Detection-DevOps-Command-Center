@@ -1,7 +1,7 @@
 import { useState } from 'react';
 export default function Login(){
   const [theme,setTheme]=useState('dark');
-  const [role,setRole]=useState('Customer');
+  const [role,setRole]=useState('');
   const [email,setEmail]=useState('');
   const [pw,setPw]=useState('');
   const [err,setErr]=useState('');
@@ -37,7 +37,7 @@ export default function Login(){
         {err&&<p style={{background:'#fee2e2',color:'#dc2626',padding:'10px',borderRadius:'8px',fontSize:'13px'}}>{err}</p>}
         {msg&&<p style={{background:'#dcfce7',color:'#16a34a',padding:'10px',borderRadius:'8px',fontSize:'13px'}}>{msg}</p>}
         <select value={role} onChange={e=>setRole(e.target.value)} style={s}>
-          <option>Customer</option><option>Admin</option><option>RiskManager</option><option>SupportAgent</option>
+          <option value="" disabled>Select your role</option><option>Customer</option><option>Admin</option><option>RiskManager</option><option>SupportAgent</option>
         </select>
         <input placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} style={s} />
         <input placeholder="Password" type="password" value={pw} onChange={e=>setPw(e.target.value)} style={s} />

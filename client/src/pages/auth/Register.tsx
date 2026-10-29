@@ -1,7 +1,7 @@
 import { useState } from 'react';
 export default function Register(){
   const [theme,setTheme]=useState('dark');
-  const [form,setForm]=useState({name:'',email:'',phone:'',dob:'',role:'Customer',password:'',confirm:''});
+  const [form,setForm]=useState({name:'',email:'',phone:'',dob:'',role:'',password:'',confirm:''});
   const [err,setErr]=useState('');
   const dark=theme==='dark';
   const inputStyle={width:'100%',padding:'12px',margin:'8px 0',borderRadius:'10px',fontSize:'14px',boxSizing:'border-box' as const,
@@ -31,7 +31,7 @@ export default function Register(){
         <input placeholder="Contact Number" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} style={inputStyle} />
         <input placeholder="Date of Birth DDMMYYYY" value={form.dob} onChange={e=>setForm({...form,dob:e.target.value})} style={inputStyle} />
         <select value={form.role} onChange={e=>setForm({...form,role:e.target.value})} style={inputStyle}>
-          <option>Customer</option><option>Admin</option><option>RiskManager</option><option>SupportAgent</option>
+          <option value="" disabled>Select your role</option><option>Customer</option><option>Admin</option><option>RiskManager</option><option>SupportAgent</option>
         </select>
         <input type="password" placeholder="Password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})} style={inputStyle} />
         <input type="password" placeholder="Confirm Password" value={form.confirm} onChange={e=>setForm({...form,confirm:e.target.value})} style={inputStyle} />
