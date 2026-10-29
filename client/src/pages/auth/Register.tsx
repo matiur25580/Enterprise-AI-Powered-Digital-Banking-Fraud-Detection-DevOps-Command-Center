@@ -15,7 +15,7 @@ export default function Register(){
         body:JSON.stringify({name:form.name,email:form.email,password:form.password,role:form.role,dob:form.dob})});
       const data=await res.json();
       if(!res.ok){ setErr(data.error||'Registration failed'); return; }
-      window.location.href='/success?uid='+encodeURIComponent(data.uid)+'&name='+encodeURIComponent(form.name);
+      window.location.href='/verify-otp?uid='+encodeURIComponent(data.uid)+'&email='+encodeURIComponent(form.email)+'&name='+encodeURIComponent(form.name);
     }catch(e){ setErr('Server error. Try again.'); }
   };
   return(

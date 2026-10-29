@@ -20,6 +20,7 @@ export default function App(){
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot" element={<ForgotPassword />} />
+        <Route path="/verify-otp" element={<VerifyOtp />} />
         <Route path="/success" element={<Success />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/customer" element={<Customer />} />
