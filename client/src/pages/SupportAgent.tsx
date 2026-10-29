@@ -4,6 +4,7 @@ import SuccessToast from '../components/SuccessToast';
 export default function SupportAgent() {
   const [theme, setTheme] = useState('dark');
   const [dt, setDt] = useState(getDateTime());
+  const [user] = useState(()=>{ try{ return JSON.parse(localStorage.getItem('trustshield_user')||'{}'); }catch(e){ return {}; } });
   const [msg, setMsg] = useState('');
   const [search, setSearch] = useState('');
   const dark = theme==='dark';
@@ -15,6 +16,7 @@ export default function SupportAgent() {
   return (
     <div style={{ background: dark?'#0a0a0a':'#f1f5f9', color: dark?'#fff':'#000', minHeight:'100vh', padding:'20px' }}>
       <SuccessToast msg={msg} onClose={()=>setMsg('')} />
+      {user.uid && <div>UID: {user.uid}</div>}
       <div style={{ background:'linear-gradient(90deg,#0284c7,#0c4a6e)', color:'#fff', padding:'14px', textAlign:'center', fontWeight:'bold', fontSize:'20px', borderRadius:'12px' }}>🎧 CUSTOMER CARE PRO</div>
       <div style={{ display:'flex', justifyContent:'space-between', marginTop:'10px', flexWrap:'wrap' }}>
         <div><p>Date: {dt.dateStr}</p><p>Time: {dt.timeStr}</p></div>

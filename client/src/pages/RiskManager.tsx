@@ -4,6 +4,7 @@ import SuccessToast from '../components/SuccessToast';
 export default function RiskManager() {
   const [theme, setTheme] = useState('dark');
   const [dt, setDt] = useState(getDateTime());
+  const [user] = useState(()=>{ try{ return JSON.parse(localStorage.getItem('trustshield_user')||'{}'); }catch(e){ return {}; } });
   const [msg, setMsg] = useState('');
   const dark = theme==='dark';
   const card={background:dark?'#111f3a':'#fff',padding:'20px',borderRadius:'16px',margin:'12px 0'};
@@ -18,6 +19,7 @@ export default function RiskManager() {
   return (
     <div style={{ background: dark?'#0a0a0a':'#f1f5f9', color: dark?'#fff':'#000', minHeight:'100vh', padding:'20px' }}>
       <SuccessToast msg={msg} onClose={()=>setMsg('')} />
+      {user.uid && <div>UID: {user.uid}</div>}
       <div style={{ background:'linear-gradient(90deg,#7c3aed,#4c1d95)', color:'#fff', padding:'14px', textAlign:'center', fontWeight:'bold', fontSize:'20px', borderRadius:'12px' }}>🤖 AI FRAUD INTELLIGENCE</div>
       <div style={{ display:'flex', justifyContent:'space-between', marginTop:'10px', flexWrap:'wrap' }}>
         <div><p>Date: {dt.dateStr}</p><p>Time: {dt.timeStr}</p></div>

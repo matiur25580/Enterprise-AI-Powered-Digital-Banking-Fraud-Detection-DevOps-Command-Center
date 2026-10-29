@@ -4,6 +4,7 @@ import SuccessToast from '../components/SuccessToast';
 export default function Customer() {
   const [theme, setTheme] = useState('dark');
   const [dt, setDt] = useState(getDateTime());
+  const [user] = useState(()=>{ try{ return JSON.parse(localStorage.getItem('trustshield_user')||'{}'); }catch(e){ return {}; } });
   const [msg, setMsg] = useState('');
   const [toAcc, setToAcc] = useState('');
   const [amount, setAmount] = useState('');
@@ -15,6 +16,7 @@ export default function Customer() {
   return (
     <div style={{ background: dark?'#0a0a0a':'#f1f5f9', color: dark?'#fff':'#000', minHeight:'100vh', padding:'20px' }}>
       <SuccessToast msg={msg} onClose={()=>setMsg('')} />
+      {user.uid && <div>UID: {user.uid}</div>}
       <div style={{ background:'linear-gradient(135deg,#16a34a,#065f46)', color:'#fff', padding:'20px', borderRadius:'16px' }}>
         <p style={{margin:0,fontSize:'13px',opacity:0.9}}>Total Balance</p>
         <h1 style={{margin:'4px 0'}}>25,480.50</h1>
