@@ -26,10 +26,10 @@ export default function RiskManager() {
     <div style={{ background: dark?'#0a0a0a':'#f1f5f9', color: dark?'#fff':'#000', minHeight:'100vh', padding:'20px' }}>
       <SuccessToast msg={msg} onClose={()=>setMsg('')} />
       <div style={{display:'flex',gap:'10px',margin:'10px 0'}}>
-        <div style={{flex:1,padding:'12px',background:'#fee2e2',borderRadius:'10px',textAlign:'center'}}><b>{txns.filter(x=>x.risk>80).length}</b><br/>High Risk</div>
-        <div style={{flex:1,padding:'12px',background:'#fef3c7',borderRadius:'10px',textAlign:'center'}}><b>{txns.filter(x=>x.status==='Pending').length}</b><br/>Pending</div>
-        <div style={{flex:1,padding:'12px',background:'#dcfce7',borderRadius:'10px',textAlign:'center'}}><b>{txns.filter(x=>x.status==='Approved').length}</b><br/>Approved</div>
-        <div style={{flex:1,padding:'12px',background:'#fee2e2',borderRadius:'10px',textAlign:'center'}}><b>{txns.filter(x=>x.status==='Blocked').length}</b><br/>Blocked</div>
+        <div style={{flex:1,padding:'12px',background:dark?'#7f1d1d':'#fee2e2',borderRadius:'10px',textAlign:'center',color:dark?'#ffffff':'#000000'}}><b>{txns.filter(x=>x.risk>80).length}</b><br/>High Risk</div>
+        <div style={{flex:1,padding:'12px',background:dark?'#78350f':'#fef3c7',borderRadius:'10px',textAlign:'center',color:dark?'#ffffff':'#000000'}}><b>{txns.filter(x=>x.status==='Pending').length}</b><br/>Pending</div>
+        <div style={{flex:1,padding:'12px',background:dark?'#14532d':'#dcfce7',borderRadius:'10px',textAlign:'center',color:dark?'#ffffff':'#000000'}}><b>{txns.filter(x=>x.status==='Approved').length}</b><br/>Approved</div>
+        <div style={{flex:1,padding:'12px',background:dark?'#7f1d1d':'#fee2e2',borderRadius:'10px',textAlign:'center',color:dark?'#ffffff':'#000000'}}><b>{txns.filter(x=>x.status==='Blocked').length}</b><br/>Blocked</div>
       </div>
       <div style={{margin:'10px 0'}}>
         {['All','Pending','Blocked','Approved'].map(f=><button key={f} onClick={()=>setFilter(f)} style={{marginRight:'8px',padding:'6px 12px',borderRadius:'8px',border:'none',background:filter===f?'#2563eb':'#e5e7eb',color:filter===f?'#fff':'#000'}}>{f}</button>)}

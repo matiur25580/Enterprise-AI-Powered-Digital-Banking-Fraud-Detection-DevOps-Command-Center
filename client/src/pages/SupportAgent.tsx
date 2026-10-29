@@ -26,9 +26,9 @@ export default function SupportAgent() {
     <div style={{ background: dark?'#0a0a0a':'#f1f5f9', color: dark?'#fff':'#000', minHeight:'100vh', padding:'20px' }}>
       <SuccessToast msg={msg} onClose={()=>setMsg('')} />
       <div style={{display:'flex',gap:'10px',margin:'10px 0'}}>
-        <div style={{flex:1,padding:'12px',background:'#dbeafe',borderRadius:'10px',textAlign:'center'}}><b>{tickets.filter(x=>x.status==='Open').length}</b><br/>Open</div>
-        <div style={{flex:1,padding:'12px',background:'#dcfce7',borderRadius:'10px',textAlign:'center'}}><b>{tickets.filter(x=>x.status==='Resolved'||x.status==='Verified').length}</b><br/>Resolved</div>
-        <div style={{flex:1,padding:'12px',background:'#fef3c7',borderRadius:'10px',textAlign:'center'}}><b>{tickets.filter(x=>x.status==='Escalated').length}</b><br/>Escalated</div>
+        <div style={{flex:1,padding:'12px',background:dark?'#1e3a5f':'#dbeafe',borderRadius:'10px',textAlign:'center',color:dark?'#ffffff':'#000000'}}><b>{tickets.filter(x=>x.status==='Open').length}</b><br/>Open</div>
+        <div style={{flex:1,padding:'12px',background:dark?'#14532d':'#dcfce7',borderRadius:'10px',textAlign:'center',color:dark?'#ffffff':'#000000'}}><b>{tickets.filter(x=>x.status==='Resolved'||x.status==='Verified').length}</b><br/>Resolved</div>
+        <div style={{flex:1,padding:'12px',background:dark?'#78350f':'#fef3c7',borderRadius:'10px',textAlign:'center',color:dark?'#ffffff':'#000000'}}><b>{tickets.filter(x=>x.status==='Escalated').length}</b><br/>Escalated</div>
       </div>
       {searchResult && <div style={{padding:'10px',background:'#f0fdf4',borderRadius:'8px',margin:'10px 0',fontSize:'13px'}}>{searchResult}</div>}
       <h3>Ticket Overview</h3>
@@ -68,7 +68,7 @@ export default function SupportAgent() {
         <h3>💬 Live Chat</h3>
         <div style={{height:'200px',overflowY:'auto',border:'1px solid #e5e7eb',borderRadius:'8px',padding:'10px',marginBottom:'10px',background:dark?'#0a0a0a':'#f9fafb'}}>
           {chatMsgs.map((m,i)=><div key={i} style={{textAlign:m.from==='agent'?'left':'right',margin:'6px 0'}}>
-            <span style={{display:'inline-block',padding:'8px 12px',borderRadius:'12px',background:m.from==='agent'?'#dbeafe':'#dcfce7',fontSize:'13px'}}>{m.text}</span>
+            <span style={{display:'inline-block',padding:'8px 12px',borderRadius:'12px',background:m.from==='agent'?(dark?'#1e3a5f':'#dbeafe'):(dark?'#14532d':'#dcfce7'),fontSize:'13px',color:dark?'#ffffff':'#000000'}}>{m.text}</span>
           </div>)}
         </div>
         <div style={{display:'flex',gap:'8px'}}>

@@ -62,11 +62,11 @@ export default function Admin() {
       <div style={card}>
         <h3>User Management ({users.length})</h3>
         <div style={{display:'flex',gap:'10px',marginBottom:'10px'}}>
-          <div style={{flex:1,padding:'12px',background:'#dbeafe',borderRadius:'10px',textAlign:'center'}}><b>{stats.total}</b><br/>Total Users</div>
-          <div style={{flex:1,padding:'12px',background:'#dcfce7',borderRadius:'10px',textAlign:'center'}}><b>{stats.customers}</b><br/>Customers</div>
-          <div style={{flex:1,padding:'12px',background:'#fef3c7',borderRadius:'10px',textAlign:'center'}}><b>{stats.admins}</b><br/>Admins</div>
+          <div style={{flex:1,padding:'12px',background:dark?'#1e3a5f':'#dbeafe',borderRadius:'10px',textAlign:'center',color:dark?'#ffffff':'#000000'}}><b>{stats.total}</b><br/>Total Users</div>
+          <div style={{flex:1,padding:'12px',background:dark?'#14532d':'#dcfce7',borderRadius:'10px',textAlign:'center',color:dark?'#ffffff':'#000000'}}><b>{stats.customers}</b><br/>Customers</div>
+          <div style={{flex:1,padding:'12px',background:dark?'#78350f':'#fef3c7',borderRadius:'10px',textAlign:'center',color:dark?'#ffffff':'#000000'}}><b>{stats.admins}</b><br/>Admins</div>
         </div>
-        <table style={{width:'100%',fontSize:'12px',borderCollapse:'collapse'}}>
+        <table style={{width:'100%',fontSize:'12px',borderCollapse:'collapse',color:dark?'#ffffff':'#000000'}}>
           <thead><tr><th>Email</th><th>Role</th><th>UID</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody>{users.map((u:any,i:number)=><tr key={i} style={{borderTop:'1px solid #eee'}}>
           <td>{u.email}</td>
