@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
-export default function Customer() {
+import { getDateTime } from './dateHelper';
+export default function Admin() {
   const [theme, setTheme] = useState('dark');
-  const [now, setNow] = useState(new Date());
-  useEffect(() => { const t = setInterval(() => setNow(new Date()), 1000); return () => clearInterval(t); }, []);
+  const [dt, setDt] = useState(getDateTime());
+  useEffect(()=>{ const t=setInterval(()=>setDt(getDateTime()),1000); return ()=>clearInterval(t); },[]);
   return (
     <div style={{ background: theme==='dark'?'#0a0a0a':'#fff', color: theme==='dark'?'#fff':'#000', minHeight:'100vh', padding:'20px' }}>
-      <div style={{ background:'#16a34a', color:'#fff', padding:'10px', textAlign:'center', fontWeight:'bold', fontSize:'20px' }}>ROLE: CUSTOMER</div>
+      <div style={{ background:'#dc2626', color:'#fff', padding:'10px', textAlign:'center', fontWeight:'bold' }}>ROLE: CUSTOMER</div>
       <div style={{ display:'flex', justifyContent:'space-between', marginTop:'10px' }}>
-        <h1>Customer - Digital Banking</h1>
-        <button onClick={()=>{localStorage.removeItem("token"); window.location.href="/login";}} style={{marginRight:"10px"}}>Logout</button><button onClick={()=>setTheme(theme==='dark'?'light':'dark')}>🌙/☀️ Theme</button>
+        <div><p>Date: {dt.dateStr}</p><p>Time: {dt.timeStr}</p></div>
+        <div><button onClick={()=>{localStorage.removeItem("token"); window.location.href="/login";}} style={{marginRight:'10px'}}>Logout</button><button onClick={()=>setTheme(theme==='dark'?'light':'dark')}>🌙/☀️ Theme</button></div>
       </div>
-      <p>{now.toLocaleDateString('en-GB').replaceAll('/','.')} | {now.toLocaleTimeString('en-US',{hour12:true})}</p>
+      <h1>Customer - Digital Banking</h1>
       <p>You are logged in as <b>Customer</b></p>
     </div>
   );
