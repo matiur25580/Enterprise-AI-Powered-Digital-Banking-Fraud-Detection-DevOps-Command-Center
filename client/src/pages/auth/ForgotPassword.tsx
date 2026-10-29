@@ -21,7 +21,7 @@ export default function ForgotPassword(){
           {otp.map((d,i)=><input key={i} value={d} onChange={e=>set(i,e.target.value)} maxLength={1} style={otpStyle} />)}
         </div>
         <p style={{color:'#94a3b8',fontSize:'13px'}}>6-digit OTP • 3 min valid</p>
-        <button style={{...inputStyle,background:'#16a34a',color:'#fff',border:'none',fontWeight:'bold',cursor:'pointer'}}>Verify & Reset</button>
+        <button style={{...inputStyle,background:'#2563eb',color:'#fff',border:'none',fontWeight:'bold',cursor:'pointer'}}>Verify & Reset</button>
       </div>
     </div>
   );

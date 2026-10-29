@@ -22,7 +22,7 @@ export default function Login(){
           <input type={show?'text':'password'} placeholder="••••••••" style={{...inputStyle,margin:0,borderRadius:'10px 0 0 10px',flex:1}} />
           <button onClick={()=>setShow(!show)} style={{width:'48px',borderRadius:'0 10px 10px 0',border:dark?'1px solid #475569':'1px solid #cbd5e1',borderLeft:'none',cursor:'pointer',background:dark?'#1e293b':'#fff'}}>👁️</button>
         </div>
-        <button style={{...inputStyle,background:'#16a34a',color:'#fff',border:'none',fontWeight:'bold',cursor:'pointer',marginTop:'12px'}}>LOGIN</button>
+        <button style={{...inputStyle,background:'#2563eb',color:'#fff',border:'none',fontWeight:'bold',cursor:'pointer',marginTop:'12px'}}>LOGIN</button>
         <p style={{textAlign:'center',fontSize:'13px'}}><a href="/forgot">Forgot Password?</a> | <a href="/register">Register</a></p>
       </div>
     </div>
