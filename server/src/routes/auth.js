@@ -1,7 +1,7 @@
 const express=require('express');
 const r=express.Router();
 const {sendOTP}=require('../utils/sendEmail');
-let users=[];
+const User=require('../models/User');
 let otpStore={};
 function genUID(name,dob,role){
   const X=((role||'C')[0]||'X').toUpperCase();
@@ -11,30 +11,36 @@ function genUID(name,dob,role){
   const d=(dob||'01012000').replace(/[^0-9]/g,'').padEnd(8,'0').slice(0,8);
   return X+Y+Z+d.slice(0,2)+d.slice(2,4)+d.slice(4,8);
 }
-r.post('/register',(req,res)=>{
-  const {name,email,password,role,dob}=req.body;
-  if(!email||!password) return res.status(400).json({error:'Email and password required'});
-  const userRole=role||'Customer';
-  const exists=users.find(u=>u.email===email && u.role===userRole);
-  if(exists) return res.status(400).json({error:'This email is already registered as '+userRole+'. Please login or choose a different role.'});
-  const uid=genUID(name||email,dob,userRole);
-  const u={uid,name,email,password,role:userRole,dob};
-  users.push(u);
-  res.json({msg:'Registration successful',uid,message:'Save it for future further reference',user:u});
+r.post('/register',async(req,res)=>{
+  try{
+    const {name,email,password,role,dob}=req.body;
+    if(!email||!password) return res.status(400).json({error:'Email and password required'});
+    const userRole=role||'Customer';
+    const exists=await User.findOne({email,role:userRole});
+    if(exists) return res.status(400).json({error:'This email is already registered as '+userRole+'. Please login or choose a different role.'});
+    const uid=genUID(name||email,dob,userRole);
+    const u=await User.create({uid,name,email,password,role:userRole,dob});
+    res.json({msg:'Registration successful',uid,message:'Save it for future further reference',user:u});
+  }catch(e){ res.status(500).json({error:e.message}); }
 });
-r.post('/login',(req,res)=>{
-  const {email,password,role}=req.body;
-  const loginId=(email||'').trim();
-  let u;
-  if(role){ u=users.find(x=>(x.email===loginId||x.uid===loginId) && x.role===role); }
-  else{ u=users.find(x=>x.email===loginId||x.uid===loginId); }
-  if(!u){
-    const anyEmail=users.find(x=>x.email===email);
-    if(anyEmail) return res.status(400).json({error:'No '+role+' account with this email. You have: '+users.filter(x=>x.email===email).map(x=>x.role).join(', ')});
-    return res.status(400).json({error:"This email doesn't exist. Please first register."});
-  }
-  if(u.password!==password) return res.status(400).json({error:'Wrong password. Please try again.'});
-  res.json({msg:'Login successful',user:u});
+r.post('/login',async(req,res)=>{
+  try{
+    const {email,password,role}=req.body;
+    const loginId=(email||'').trim();
+    let u;
+    if(role){ u=await User.findOne({$or:[{email:loginId},{uid:loginId}],role}); }
+    else{ u=await User.findOne({$or:[{email:loginId},{uid:loginId}]}); }
+    if(!u){
+      const anyId=await User.findOne({$or:[{email:loginId},{uid:loginId}]});
+      if(anyId){
+        const roles=await User.find({$or:[{email:loginId},{uid:loginId}]}).distinct('role');
+        return res.status(400).json({error:'No '+role+' account with this ID. You have: '+roles.join(', ')});
+      }
+      return res.status(400).json({error:"This email / ID doesn't exist. Please first register."});
+    }
+    if(u.password!==password) return res.status(400).json({error:'Wrong password. Please try again.'});
+    res.json({msg:'Login successful',user:u});
+  }catch(e){ res.status(500).json({error:e.message}); }
 });
 r.post('/send-otp',async(req,res)=>{
   const otp=Math.floor(100000+Math.random()*900000);
