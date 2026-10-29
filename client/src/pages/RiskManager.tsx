@@ -6,6 +6,12 @@ export default function RiskManager() {
   const [dt, setDt] = useState(getDateTime());
   const [user] = useState(()=>{ try{ return JSON.parse(localStorage.getItem('trustshield_user')||'{}'); }catch(e){ return {}; } });
   const [msg, setMsg] = useState('');
+  const [filter, setFilter] = useState('All');
+  const [txns, setTxns] = useState([
+    {id:'TXN101', user:'rahamanmatiur397@gmail.com', amt:5000, risk:85, status:'Pending'},
+    {id:'TXN102', user:'test@gmail.com', amt:1200, risk:45, status:'Pending'},
+    {id:'TXN103', user:'demo@gmail.com', amt:9500, risk:92, status:'Pending'},
+  ]);
   const dark = theme==='dark';
   const card={background:dark?'#111f3a':'#fff',padding:'20px',borderRadius:'16px',margin:'12px 0'};
   const stat={flex:1,minWidth:'120px',background:dark?'#1e293b':'#f1f5f9',padding:'14px',borderRadius:'12px',textAlign:'center' as const};
@@ -19,6 +25,15 @@ export default function RiskManager() {
   return (
     <div style={{ background: dark?'#0a0a0a':'#f1f5f9', color: dark?'#fff':'#000', minHeight:'100vh', padding:'20px' }}>
       <SuccessToast msg={msg} onClose={()=>setMsg('')} />
+      <div style={{display:'flex',gap:'10px',margin:'10px 0'}}>
+        <div style={{flex:1,padding:'12px',background:'#fee2e2',borderRadius:'10px',textAlign:'center'}}><b>{txns.filter(x=>x.risk>80).length}</b><br/>High Risk</div>
+        <div style={{flex:1,padding:'12px',background:'#fef3c7',borderRadius:'10px',textAlign:'center'}}><b>{txns.filter(x=>x.status==='Pending').length}</b><br/>Pending</div>
+        <div style={{flex:1,padding:'12px',background:'#dcfce7',borderRadius:'10px',textAlign:'center'}}><b>{txns.filter(x=>x.status==='Approved').length}</b><br/>Approved</div>
+        <div style={{flex:1,padding:'12px',background:'#fee2e2',borderRadius:'10px',textAlign:'center'}}><b>{txns.filter(x=>x.status==='Blocked').length}</b><br/>Blocked</div>
+      </div>
+      <div style={{margin:'10px 0'}}>
+        {['All','Pending','Blocked','Approved'].map(f=><button key={f} onClick={()=>setFilter(f)} style={{marginRight:'8px',padding:'6px 12px',borderRadius:'8px',border:'none',background:filter===f?'#2563eb':'#e5e7eb',color:filter===f?'#fff':'#000'}}>{f}</button>)}
+      </div>
       {user.uid && <div>UID: {user.uid}</div>}
       <div style={{ background:'linear-gradient(90deg,#7c3aed,#4c1d95)', color:'#fff', padding:'14px', textAlign:'center', fontWeight:'bold', fontSize:'20px', borderRadius:'12px' }}>🤖 AI FRAUD INTELLIGENCE</div>
       <div style={{ display:'flex', justifyContent:'space-between', marginTop:'10px', flexWrap:'wrap' }}>
@@ -42,8 +57,8 @@ export default function RiskManager() {
             <div style={{textAlign:'right'}}><b style={{color:'#dc2626'}}>{a.score}</b>{bar(a.score)}</div>
           </div>
           <div style={{marginTop:'8px'}}>
-            <button onClick={()=>setMsg('Transaction '+a.id+' blocked and reported')} style={{padding:'8px 16px',borderRadius:'8px',border:'none',background:'#dc2626',color:'#fff',marginRight:'8px'}}>⛔ Block</button>
-            <button onClick={()=>setMsg('Transaction '+a.id+' approved as legitimate')} style={{padding:'8px 16px',borderRadius:'8px',border:'none',background:'#16a34a',color:'#fff'}}>✅ Approve</button>
+            <button onClick={()=>{setTxns(txns.map(x=>x.id===a.id?{...x,status:'Blocked'}:x)); setMsg('Transaction '+a.id+' blocked and reported');}} style={{padding:'8px 16px',borderRadius:'8px',border:'none',background:'#dc2626',color:'#fff',marginRight:'8px'}}>⛔ Block</button>
+            <button onClick={()=>{setTxns(txns.map(x=>x.id===a.id?{...x,status:'Approved'}:x)); setMsg('Transaction '+a.id+' approved as legitimate');}} style={{padding:'8px 16px',borderRadius:'8px',border:'none',background:'#16a34a',color:'#fff'}}>✅ Approve</button>
           </div>
         </div>)}
       </div>
