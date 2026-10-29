@@ -1,0 +1,5 @@
+const nodemailer=require('nodemailer');
+module.exports.async function sendOTP(email,otp){
+ const t=nodemailer.createTransport({service:'gmail',auth:{user:process.env.EMAIL_USER,pass:process.env.EMAIL_PASS}});
+ await t.sendMail({from:process.env.EMAIL_USER,to:email,subject:'TrustShield OTP',text:'Your OTP is '+otp});
+}

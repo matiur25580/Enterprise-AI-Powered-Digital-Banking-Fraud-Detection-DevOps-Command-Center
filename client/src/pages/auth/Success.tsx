@@ -1,0 +1,1 @@
+export default function Success(){return 'Registration successful - blue green message page';}
