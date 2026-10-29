@@ -18,6 +18,7 @@ export default function Login(){
       const data=await res.json();
       if(!res.ok){ setErr(data.error||'Login failed'); return; }
       setMsg('Login successful! Redirecting...');
+      localStorage.setItem('trustshield_user', JSON.stringify(data.user));
       const r=data.user.role;
       setTimeout(()=>{
         if(r==='Admin') window.location.href='/admin';
@@ -39,7 +40,7 @@ export default function Login(){
         <select value={role} onChange={e=>setRole(e.target.value)} style={s}>
           <option value="" disabled>Select your role</option><option>Customer</option><option>Admin</option><option>RiskManager</option><option>SupportAgent</option>
         </select>
-        <input placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} style={s} />
+        <input placeholder="Email or Unique ID" value={email} onChange={e=>setEmail(e.target.value)} style={s} />
         <input placeholder="Password" type="password" value={pw} onChange={e=>setPw(e.target.value)} style={s} />
         <button onClick={login} style={{...s,background:'#2563eb',color:'#fff',border:'none',fontWeight:'bold'}}>Login</button>
         <p style={{textAlign:'center',fontSize:'13px'}}><a href="/forgot">Forgot?</a> | <a href="/register">Register</a></p>

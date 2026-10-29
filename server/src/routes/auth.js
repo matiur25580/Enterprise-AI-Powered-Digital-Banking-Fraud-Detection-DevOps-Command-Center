@@ -24,9 +24,10 @@ r.post('/register',(req,res)=>{
 });
 r.post('/login',(req,res)=>{
   const {email,password,role}=req.body;
+  const loginId=(email||'').trim();
   let u;
-  if(role){ u=users.find(x=>x.email===email && x.role===role); }
-  else{ u=users.find(x=>x.email===email); }
+  if(role){ u=users.find(x=>(x.email===loginId||x.uid===loginId) && x.role===role); }
+  else{ u=users.find(x=>x.email===loginId||x.uid===loginId); }
   if(!u){
     const anyEmail=users.find(x=>x.email===email);
     if(anyEmail) return res.status(400).json({error:'No '+role+' account with this email. You have: '+users.filter(x=>x.email===email).map(x=>x.role).join(', ')});
