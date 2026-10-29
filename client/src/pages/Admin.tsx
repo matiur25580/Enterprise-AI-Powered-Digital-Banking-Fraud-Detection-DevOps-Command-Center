@@ -6,10 +6,18 @@ export default function Admin() {
   const [dt, setDt] = useState(getDateTime());
   const [user] = useState(()=>{ try{ return JSON.parse(localStorage.getItem('trustshield_user')||'{}'); }catch(e){ return {}; } });
   const [msg, setMsg] = useState('');
+  const [users, setUsers] = useState([]);
+  const [stats, setStats] = useState({total:0, customers:0, admins:0});
   const dark = theme==='dark';
   const card={background:dark?'#111f3a':'#fff',padding:'20px',borderRadius:'16px',margin:'12px 0',boxShadow:'0 4px 12px rgba(0,0,0,0.2)'};
   const stat={flex:1,minWidth:'140px',background:dark?'#1e293b':'#f1f5f9',padding:'16px',borderRadius:'12px',textAlign:'center' as const};
   useEffect(()=>{ const t=setInterval(()=>setDt(getDateTime()),1000); return ()=>clearInterval(t); },[]);
+  useEffect(()=>{
+    const api=(import.meta as any).env.VITE_API_URL||'http://localhost:5000';
+    fetch(api+'/api/admin/users').then(r=>r.json()).then(d=>{
+      if(Array.isArray(d)){ setUsers(d); setStats({total:d.length, customers:d.filter((u:any)=>u.role==='Customer').length, admins:d.filter((u:any)=>u.role==='Admin').length}); }
+    }).catch(()=>{});
+  },[]);
   return (
     <div style={{ background: dark?'#0a0a0a':'#f1f5f9', color: dark?'#fff':'#000', minHeight:'100vh', padding:'20px' }}>
       <SuccessToast msg={msg} onClose={()=>setMsg('')} />
@@ -37,10 +45,22 @@ export default function Admin() {
       <div style={card}>
         <h3>⚡ Quick Actions</h3>
         <div style={{display:'flex',gap:'10px',flexWrap:'wrap'}}>
-          <button onClick={()=>window.location.href='/staff'} style={{flex:1,padding:'12px',borderRadius:'10px',border:'none',background:'#2563eb',color:'#fff',fontWeight:'bold'}}>👥 Manage Staff</button>
-          <button onClick={()=>setMsg('Audit log exported successfully')} style={{flex:1,padding:'12px',borderRadius:'10px',border:'none',background:'#16a34a',color:'#fff',fontWeight:'bold'}}>📋 Export Audit</button>
-          <button onClick={()=>setMsg('Compliance report generated')} style={{flex:1,padding:'12px',borderRadius:'10px',border:'none',background:'#7c3aed',color:'#fff',fontWeight:'bold'}}>📊 Compliance</button>
+          <button onClick={()=>setMsg('Staff list loaded: '+users.length+' users')} style={{flex:1,padding:'12px',borderRadius:'10px',border:'none',background:'#2563eb',color:'#fff',fontWeight:'bold'}}>👥 Manage Staff</button>
+          <button onClick={()=>{const csv='Email,Role,UID\n'+users.map((u:any)=>u.email+','+u.role+','+u.uid).join('\n'); const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='audit.csv'; a.click(); setMsg('Audit log exported');}} style={{flex:1,padding:'12px',borderRadius:'10px',border:'none',background:'#16a34a',color:'#fff',fontWeight:'bold'}}>📋 Export Audit</button>
+          <button onClick={()=>setMsg('Compliance: '+stats.total+' total users, '+stats.customers+' customers, '+stats.admins+' admins - Report generated')} style={{flex:1,padding:'12px',borderRadius:'10px',border:'none',background:'#7c3aed',color:'#fff',fontWeight:'bold'}}>📊 Compliance</button>
         </div>
+      </div>
+      <div style={card}>
+        <h3>User Management ({users.length})</h3>
+        <div style={{display:'flex',gap:'10px',marginBottom:'10px'}}>
+          <div style={{flex:1,padding:'12px',background:'#dbeafe',borderRadius:'10px',textAlign:'center'}}><b>{stats.total}</b><br/>Total Users</div>
+          <div style={{flex:1,padding:'12px',background:'#dcfce7',borderRadius:'10px',textAlign:'center'}}><b>{stats.customers}</b><br/>Customers</div>
+          <div style={{flex:1,padding:'12px',background:'#fef3c7',borderRadius:'10px',textAlign:'center'}}><b>{stats.admins}</b><br/>Admins</div>
+        </div>
+        <table style={{width:'100%',fontSize:'12px',borderCollapse:'collapse'}}>
+          <thead><tr><th>Email</th><th>Role</th><th>UID</th></tr></thead>
+          <tbody>{users.map((u:any,i:number)=><tr key={i} style={{borderTop:'1px solid #eee'}}><td>{u.email}</td><td>{u.role}</td><td>{u.uid}</td></tr>)}</tbody>
+        </table>
       </div>
     </div>
   );
