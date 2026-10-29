@@ -8,7 +8,7 @@ export default function SupportAgent() {
       <div style={{ background:'#0284c7', color:'#fff', padding:'10px', textAlign:'center', fontWeight:'bold', fontSize:'20px' }}>ROLE: SUPPORT AGENT</div>
       <div style={{ display:'flex', justifyContent:'space-between', marginTop:'10px' }}>
         <h1>Support Agent - Customer Care</h1>
-        <button onClick={()=>setTheme(theme==='dark'?'light':'dark')}>Toggle Theme</button>
+        <button onClick={()=>setTheme(theme==='dark'?'light':'dark')}>🌙/☀️ Theme</button>
       </div>
       <p>{now.toLocaleDateString('en-GB').replaceAll('/','.')} | {now.toLocaleTimeString('en-US',{hour12:true})}</p>
       <p>You are logged in as <b>SupportAgent</b></p>
