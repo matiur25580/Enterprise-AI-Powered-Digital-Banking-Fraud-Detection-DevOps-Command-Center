@@ -56,4 +56,11 @@ r.post('/verify-otp',(req,res)=>{
   }
   return res.status(400).json({error:'Wrong OTP. Please try again.'});
 });
+r.get('/admin/users', async(req,res)=>{
+  try{
+    const User=require('../models/User');
+    const users=await User.find({},{password:0}).limit(100);
+    res.json(users);
+  }catch(e){ res.status(500).json({error:e.message}); }
+});
 module.exports=r;
