@@ -13,6 +13,9 @@ export default function SupportAgent() {
     {id:'KYC001', issue:'Aadhaar pending', email:'amit@mail.com', status:'Pending', priority:'Low'},
   ]);
   const [searchResult, setSearchResult] = useState('');
+  const [newTicket, setNewTicket] = useState({issue:'', email:''});
+  const [chatMsgs, setChatMsgs] = useState([{from:'agent', text:'Hello! How can I help you today?'}]);
+  const [chatInput, setChatInput] = useState('');
   const dark = theme==='dark';
   const s={width:'100%',padding:'12px',margin:'8px 0',borderRadius:'10px',fontSize:'14px',boxSizing:'border-box' as const,
     background:dark?'#1e293b':'#ffffff',color:dark?'#ffffff':'#000000',border:dark?'1px solid #475569':'1px solid #cbd5e1'};
@@ -54,6 +57,24 @@ export default function SupportAgent() {
         <p>🔴 <b>DSP172901</b> — Wrong amount 00 • rahul@mail.com <button onClick={()=>{setTickets(tickets.map(x=>x.id==='DSP172901'?{...x,status:'Resolved'}:x)); setMsg('Ticket DSP172901 resolved');}} style={{marginLeft:'8px',padding:'6px 12px',borderRadius:'6px',border:'none',background:'#16a34a',color:'#fff'}}>Resolve</button></p>
         <p>🟡 <b>DSP172902</b> — Fraud alert • priya@mail.com <button onClick={()=>{setTickets(tickets.map(x=>x.id==='DSP172902'?{...x,status:'Escalated'}:x)); setMsg('Ticket DSP172902 escalated to Risk');}} style={{marginLeft:'8px',padding:'6px 12px',borderRadius:'6px',border:'none',background:'#f59e0b',color:'#fff'}}>Escalate</button></p>
         <p>🟢 <b>KYC001</b> — Aadhaar pending • amit@mail.com <button onClick={()=>{setTickets(tickets.map(x=>x.id==='KYC001'?{...x,status:'Verified'}:x)); setMsg('KYC KYC001 verified');}} style={{marginLeft:'8px',padding:'6px 12px',borderRadius:'6px',border:'none',background:'#7c3aed',color:'#fff'}}>Verify KYC</button></p>
+      </div>
+      <div style={card}>
+        <h3>🎫 Create New Ticket</h3>
+        <input placeholder="Customer Email" value={newTicket.email} onChange={e=>setNewTicket({...newTicket,email:e.target.value})} style={s} />
+        <input placeholder="Issue Description" value={newTicket.issue} onChange={e=>setNewTicket({...newTicket,issue:e.target.value})} style={s} />
+        <button onClick={()=>{if(!newTicket.email||!newTicket.issue){setMsg('Enter email and issue');return;} const id='DSP'+Math.floor(100000+Math.random()*900000); setTickets([...tickets,{id:id, issue:newTicket.issue, email:newTicket.email, status:'Open', priority:'Medium'}]); setMsg('Ticket '+id+' created'); setNewTicket({issue:'',email:''});}} style={{...s,background:'#2563eb',color:'#fff',border:'none',fontWeight:'bold'}}>Create Ticket</button>
+      </div>
+      <div style={card}>
+        <h3>💬 Live Chat</h3>
+        <div style={{height:'200px',overflowY:'auto',border:'1px solid #e5e7eb',borderRadius:'8px',padding:'10px',marginBottom:'10px',background:dark?'#0a0a0a':'#f9fafb'}}>
+          {chatMsgs.map((m,i)=><div key={i} style={{textAlign:m.from==='agent'?'left':'right',margin:'6px 0'}}>
+            <span style={{display:'inline-block',padding:'8px 12px',borderRadius:'12px',background:m.from==='agent'?'#dbeafe':'#dcfce7',fontSize:'13px'}}>{m.text}</span>
+          </div>)}
+        </div>
+        <div style={{display:'flex',gap:'8px'}}>
+          <input placeholder="Type message..." value={chatInput} onChange={e=>setChatInput(e.target.value)} onKeyPress={e=>{if(e.key==='Enter' && chatInput){setChatMsgs([...chatMsgs,{from:'customer',text:chatInput}]); setTimeout(()=>setChatMsgs(prev=>[...prev,{from:'agent',text:'Thanks for your message. An agent will respond shortly.'}]),1000); setChatInput('');}}} style={{...s,flex:1,margin:0}} />
+          <button onClick={()=>{if(!chatInput)return; setChatMsgs([...chatMsgs,{from:'customer',text:chatInput}]); setTimeout(()=>setChatMsgs(prev=>[...prev,{from:'agent',text:'Thanks for your message. An agent will respond shortly.'}]),1000); setChatInput('');}} style={{padding:'12px 20px',borderRadius:'10px',border:'none',background:'#2563eb',color:'#fff',fontWeight:'bold'}}>Send</button>
+        </div>
       </div>
     </div>
   );
