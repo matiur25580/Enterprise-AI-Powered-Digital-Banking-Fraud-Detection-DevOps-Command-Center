@@ -17,12 +17,12 @@ Enterprise-grade digital banking platform with AI fraud detection, real-time mon
 
 ### 👑 Role Dashboards
 **Admin Command Center**
-- User stats (2,847 users, $4.2M volume), branch performance
+- Banking overview cards for user activity, transaction volume and branch performance (dashboard figures are demo/sample data, not live financial records)
 - Staff management, audit log export, compliance reports
 
 **AI Fraud Intelligence (RiskManager)**
-- Live fraud alerts with AI risk scores (92, 87, 76)
-- Block/Approve actions, 98.2% AI accuracy
+- Fraud alert workflow with illustrative risk scores
+- Block/Approve actions; model accuracy must be established with a documented evaluation dataset before being reported as a metric
 
 **Customer Care Pro (SupportAgent)**
 - CSAT 4.8⭐, 360° customer search
@@ -87,7 +87,7 @@ npm run dev
 - 100% button clickable, all functions working
 
 ## 👨‍💻 Author
-**Rubel Ali** — MERN Full Stack Developer
+**Matiur Rahaman** — Full-Stack Developer
 GitHub: [@matiur25580](https://github.com/matiur25580)
 
 ## 📄 License
