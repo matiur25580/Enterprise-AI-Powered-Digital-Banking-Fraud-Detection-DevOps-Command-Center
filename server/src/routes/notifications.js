@@ -1,6 +1,11 @@
-const express=require('express');
-const r=express.Router();
-let notes=[{id:1,text:'Large transfer flagged $18,000',time:new Date()}];
-r.get('/list',(req,res)=>res.json(notes));
-r.post('/add',(req,res)=>{ const n={id:Date.now(),...req.body,time:new Date()}; notes.unshift(n); res.json({msg:'Notification added',n}); });
-module.exports=r;
+const express = require('express');
+const router = express.Router();
+
+// This placeholder is deliberately disabled: it returned mock or unscoped data.
+router.use((req, res) => res.status(501).json({
+  error: 'notifications is temporarily unavailable',
+  code: 'FEATURE_NOT_READY',
+  message: 'A persistent, authorized and audited implementation is required before this feature can be enabled.'
+}));
+
+module.exports = router;
