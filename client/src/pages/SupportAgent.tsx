@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getDateTime } from './dateHelper';
 import SuccessToast from '../components/SuccessToast';
+import { logout } from '../utils/session';
 export default function SupportAgent() {
   const [theme, setTheme] = useState('dark');
   const [dt, setDt] = useState(getDateTime());
@@ -37,7 +38,7 @@ export default function SupportAgent() {
       <div style={{ display:'flex', justifyContent:'space-between', marginTop:'10px', flexWrap:'wrap' }}>
         <div><p>Date: {dt.dateStr}</p><p>Time: {dt.timeStr}</p></div>
         <div>
-          <button onClick={()=>{localStorage.removeItem('token'); window.location.href='/login';}} style={{marginRight:'10px',padding:'8px 16px',borderRadius:'8px'}}>Logout</button>
+          <button onClick={logout} style={{marginRight:'10px',padding:'8px 16px',borderRadius:'8px'}}>Logout</button>
           <button onClick={()=>setTheme(dark?'light':'dark')} style={{padding:'8px 16px',borderRadius:'8px'}}>🌙/☀️</button>
         </div>
       </div>
