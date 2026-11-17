@@ -4,6 +4,7 @@ const router = express.Router();
 
 // Read-only, bounded audit access. The parent router enforces Admin/RiskManager roles.
 router.get('/', async (req, res) => {
+  res.set('Cache-Control', 'no-store');
   const page = Number.parseInt(req.query.page, 10) || 1;
   const limit = Number.parseInt(req.query.limit, 10) || 50;
   if (!Number.isInteger(page) || page < 1 || page > 10000 || !Number.isInteger(limit) || limit < 1 || limit > 100) {
