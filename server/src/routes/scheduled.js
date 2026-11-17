@@ -1,7 +1,11 @@
-const express=require('express');
-const r=express.Router();
-let jobs=[];
-r.post('/create',(req,res)=>{ const j={id:'SCH'+Date.now(),...req.body,active:true}; jobs.push(j); res.json({msg:'Scheduled payment created',j}); });
-r.get('/list',(req,res)=>res.json(jobs));
-r.post('/cancel/:id',(req,res)=>{ const j=jobs.find(x=>x.id===req.params.id); if(j) j.active=false; res.json({msg:'Scheduled payment cancelled'}); });
-module.exports=r;
+const express = require('express');
+const router = express.Router();
+
+// Disabled until persistent storage, ownership checks, audit trails and integration tests exist.
+router.use((req, res) => res.status(501).json({
+  error: 'scheduled is temporarily unavailable',
+  code: 'FEATURE_NOT_READY',
+  message: 'This operation is not implemented as a secure production workflow. No data or funds were changed.'
+}));
+
+module.exports = router;
