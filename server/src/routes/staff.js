@@ -1,7 +1,11 @@
-const express=require('express');
-const r=express.Router();
-let staff=[];
-r.post('/create',(req,res)=>{ const s={id:'STF'+Date.now(),...req.body,active:true}; staff.push(s); res.json({msg:'Staff created successfully',s}); });
-r.get('/list',(req,res)=>res.json(staff));
-r.post('/deactivate/:id',(req,res)=>{ const s=staff.find(x=>x.id===req.params.id); if(s) s.active=false; res.json({msg:'Staff deactivated'}); });
-module.exports=r;
+const express = require('express');
+const router = express.Router();
+
+// This placeholder is deliberately disabled: it returned mock or unscoped data.
+router.use((req, res) => res.status(501).json({
+  error: 'staff is temporarily unavailable',
+  code: 'FEATURE_NOT_READY',
+  message: 'A persistent, authorized and audited implementation is required before this feature can be enabled.'
+}));
+
+module.exports = router;
