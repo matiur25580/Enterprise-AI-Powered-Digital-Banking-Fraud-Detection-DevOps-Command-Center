@@ -9,7 +9,7 @@ Configure these values in the backend hosting provider before deploying:
   `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`
 - `CLIENT_URL`: exact frontend origin(s), comma-separated. Do not use a wildcard.
 
-The API refuses to start when the JWT secret or MongoDB connection is missing. Existing access tokens are incompatible with the current token-version claim; users must sign in again. Access tokens expire after one hour. Logout and logout-all increment the user's token version and revoke all currently issued access tokens.
+The API refuses to start when the JWT secret or MongoDB connection is missing. Existing access tokens are incompatible with the current token-version claim; users must sign in again. Access tokens expire after 15 minutes. Refresh tokens are opaque, stored only as SHA-256 hashes, rotated on use, and delivered in Secure/HttpOnly cookies in production with a CSRF double-submit token. Reuse of a rotated token revokes its token family and increments the account token version. Logout and logout-all revoke all refresh sessions and current access tokens.
 
 ## Legacy password migration
 
@@ -30,7 +30,10 @@ Public registration creates Customer accounts only. To provision the first admin
 
 ## Current functional limitations — not production banking
 
-- Password recovery, email OTP, two-factor authentication and refresh-token rotation/replay detection are not implemented. The old placeholder 2FA and OTP endpoints are disabled.
+- Email OTP password recovery is implemented using 10-minute hashed challenges, attempt limits and SMTP delivery. Configure `EMAIL_USER`, `EMAIL_PASS`, and (optionally) `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, and `EMAIL_FROM`. The generic response intentionally does not disclose whether an account exists.
+- Refresh-token rotation and replay detection are implemented at the API level. Validate cookie behavior end-to-end on the deployed frontend/API origins and configure HTTPS before enabling production use.
+- Login and registration use an in-process rate limiter. Replace it with a shared Redis-backed limiter before running multiple API instances.
+- Two-factor authentication for login and email ownership verification at registration are not implemented. The previous placeholder 2FA endpoint remains disabled.
 - Login and registration use an in-process rate limiter. Replace it with a shared Redis-backed limiter before running multiple API instances.
 - Customer balance, transfers, bills, cards and fixed deposits in the current UI are demonstration-only local state. No real funds are moved.
 - The API transfer endpoint only records a review request; it does not execute a financial transfer.
