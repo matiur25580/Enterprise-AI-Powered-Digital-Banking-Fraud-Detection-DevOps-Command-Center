@@ -32,8 +32,8 @@ export default function App(){
         <Route path="/success" element={<Success />} />
         <Route path="/admin" element={<ProtectedRoute roles={['Admin']}><Admin /></ProtectedRoute>} />
         <Route path="/customer" element={<ProtectedRoute roles={['Customer']}><Customer /></ProtectedRoute>} />
-        <Route path="/riskmanager" element={<ProtectedRoute roles={['RiskManager']}><RiskManager /></ProtectedRoute>} />
-        <Route path="/supportagent" element={<ProtectedRoute roles={['SupportAgent']}><SupportAgent /></ProtectedRoute>} />
+        <Route path="/riskmanager" element={<ProtectedRoute roles={['RiskManager']}><FeatureUnavailable /></ProtectedRoute>} />
+        <Route path="/supportagent" element={<ProtectedRoute roles={['SupportAgent']}><FeatureUnavailable /></ProtectedRoute>} />
         <Route path="/kyc" element={<ProtectedRoute roles={['Customer','Admin','RiskManager','SupportAgent']}><FeatureUnavailable /></ProtectedRoute>} />
         <Route path="/disputes" element={<ProtectedRoute roles={['Customer','Admin','SupportAgent']}><FeatureUnavailable /></ProtectedRoute>} />
         <Route path="/scheduled" element={<ProtectedRoute roles={['Customer','Admin']}><FeatureUnavailable /></ProtectedRoute>} />
