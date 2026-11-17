@@ -9,11 +9,7 @@ import Admin from './pages/Admin.tsx'
 import Customer from './pages/Customer.tsx'
 import RiskManager from './pages/RiskManager.tsx'
 import SupportAgent from './pages/SupportAgent.tsx'
-import Kyc from './pages/bank/Kyc.tsx'
-import Disputes from './pages/bank/Disputes.tsx'
-import Scheduled from './pages/bank/Scheduled.tsx'
-import Staff from './pages/bank/Staff.tsx'
-import TwoFA from './pages/bank/TwoFA.tsx'
+import FeatureUnavailable from './components/FeatureUnavailable.tsx'
 
 function ProtectedRoute({ children, roles }) {
   let user = {};
@@ -38,11 +34,11 @@ export default function App(){
         <Route path="/customer" element={<ProtectedRoute roles={['Customer']}><Customer /></ProtectedRoute>} />
         <Route path="/riskmanager" element={<ProtectedRoute roles={['RiskManager']}><RiskManager /></ProtectedRoute>} />
         <Route path="/supportagent" element={<ProtectedRoute roles={['SupportAgent']}><SupportAgent /></ProtectedRoute>} />
-        <Route path="/kyc" element={<ProtectedRoute roles={['Customer','Admin','RiskManager','SupportAgent']}><Kyc /></ProtectedRoute>} />
-        <Route path="/disputes" element={<ProtectedRoute roles={['Customer','Admin','SupportAgent']}><Disputes /></ProtectedRoute>} />
-        <Route path="/scheduled" element={<ProtectedRoute roles={['Customer','Admin']}><Scheduled /></ProtectedRoute>} />
-        <Route path="/staff" element={<ProtectedRoute roles={['Admin']}><Staff /></ProtectedRoute>} />
-        <Route path="/2fa" element={<ProtectedRoute roles={['Customer','Admin','RiskManager','SupportAgent']}><TwoFA /></ProtectedRoute>} />
+        <Route path="/kyc" element={<ProtectedRoute roles={['Customer','Admin','RiskManager','SupportAgent']}><FeatureUnavailable /></ProtectedRoute>} />
+        <Route path="/disputes" element={<ProtectedRoute roles={['Customer','Admin','SupportAgent']}><FeatureUnavailable /></ProtectedRoute>} />
+        <Route path="/scheduled" element={<ProtectedRoute roles={['Customer','Admin']}><FeatureUnavailable /></ProtectedRoute>} />
+        <Route path="/staff" element={<ProtectedRoute roles={['Admin']}><FeatureUnavailable /></ProtectedRoute>} />
+        <Route path="/2fa" element={<ProtectedRoute roles={['Customer','Admin','RiskManager','SupportAgent']}><FeatureUnavailable /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   )
