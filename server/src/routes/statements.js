@@ -1,7 +1,11 @@
-const express=require('express');
-const r=express.Router();
-r.get('/statement/:userId', (req,res)=>{
-  res.setHeader('Content-Type','application/pdf');
-  res.json({msg:'PDF statement for '+req.params.userId+' - integrate pdfkit here'});
+const express = require('express');
+const router = express.Router();
+
+router.get('/statement/:userId', (req, res) => {
+  if (req.user.role !== 'Admin' && req.params.userId !== req.user.uid) {
+    return res.status(403).json({ error: 'You may only access your own statement' });
+  }
+  return res.status(501).json({ error: 'Statement generation is not implemented yet' });
 });
-module.exports=r;
+
+module.exports = router;
