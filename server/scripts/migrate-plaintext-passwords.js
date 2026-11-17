@@ -25,12 +25,11 @@ async function migrate() {
       if (ARGON2_RE.test(stored)) { counts.argon2Skipped += 1; continue; }
 
       if (!APPLY) {
-        counts.candidates += 1; // Candidate count only; no writes in dry-run mode.
+        counts.candidates += 1;
         continue;
       }
 
       const passwordHash = await bcrypt.hash(stored, 12);
-      // Compare-and-set prevents overwriting a password changed concurrently.
       const result = await User.updateOne(
         { _id: user._id, password: user.password },
         { $set: { password: passwordHash } }
@@ -42,7 +41,7 @@ async function migrate() {
       mode: APPLY ? 'APPLY' : 'DRY_RUN',
       ...counts,
       note: 'No credentials or user identifiers are printed. Argon2 hashes are left untouched and require Argon2 verification support or a controlled reset.'
-    }, null, 2) + '\\n');
+    }, null, 2) + '\n');
   } finally {
     await mongoose.disconnect();
   }
