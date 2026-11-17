@@ -11,7 +11,7 @@ function getJwtSecret() {
 
 async function authenticate(req, res, next) {
   const header = req.headers.authorization || '';
-  const match = header.match(/^Bearer\\s+(.+)$/i);
+  const match = header.match(/^Bearer\s+(.+)$/i);
   if (!match) return res.status(401).json({ error: 'Authentication required' });
   try {
     const payload = jwt.verify(match[1], getJwtSecret(), { algorithms: ['HS256'] });
