@@ -17,9 +17,10 @@ The earlier application stored some passwords as plaintext. Before deploying thi
 
 1. Take and verify a restorable production database backup.
 2. Set `MONGO_URI` in a trusted shell.
-3. From the `server` directory run `npm run migrate:passwords`.
-4. Confirm the migrated/skipped counts and test known accounts without exposing credentials in logs.
-5. Keep the backup until login checks are complete.
+3. From the `server` directory run `npm run migrate:passwords` first. This is a read-only dry run and reports candidate counts only.
+4. Only after independently verifying that the backup can be restored, run `CONFIRM_PRODUCTION_BACKUP=YES CONFIRM_RESTORE_TEST=YES npm run migrate:passwords -- --apply` from a trusted shell. On PowerShell, set the two environment variables for that shell before running the command.
+5. Confirm the migrated/skipped counts and test known accounts without exposing credentials in logs. The script uses compare-and-set updates so it does not overwrite a password changed concurrently.
+6. Keep the backup until login checks are complete.
 
 Login no longer accepts plaintext passwords or silently upgrades them. Accounts with legacy plaintext credentials cannot sign in until the migration is completed. If any account uses an Argon2 hash, do not run a blind hash conversion; add an Argon2 verification migration or perform a verified password reset first.
 
