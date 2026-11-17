@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 const User = require('../models/User');
-const { authenticate, requireRole, getJwtSecret } = require('../middleware/auth');
+const { authenticate, requireRole } = require('../middleware/auth');
 const { rateLimit } = require('../middleware/rateLimit');
 
 const ALLOWED_LOGIN_ROLES = ['Customer', 'Admin', 'RiskManager', 'SupportAgent'];
@@ -12,10 +12,10 @@ const loginLimit = rateLimit({ windowMs: 15 * 60 * 1000, max: 5, message: 'Too m
 const registrationLimit = rateLimit({ windowMs: 60 * 60 * 1000, max: 10, message: 'Too many registration attempts. Try again later.' });
 
 function genUID(name, dob) {
-  const parts = String(name || 'Customer X').trim().split(/\\s+/);
+  const parts = String(name || 'Customer X').trim().split(/\s+/);
   const first = (parts[0] || 'X')[0].toUpperCase();
   const last = (parts.length > 1 ? parts[parts.length - 1][0] : 'X').toUpperCase();
-  const digits = String(dob || '01012000').replace(/\\D/g, '').padEnd(8, '0').slice(0, 8);
+  const digits = String(dob || '01012000').replace(/\D/g, '').padEnd(8, '0').slice(0, 8);
   return 'C' + first + last + digits + crypto.randomBytes(4).toString('hex').toUpperCase();
 }
 
@@ -26,7 +26,7 @@ function safeUser(user) {
 function issueToken(user) {
   return jwt.sign(
     { uid: user.uid, email: user.email, role: user.role, tv: user.tokenVersion || 0 },
-    getJwtSecret(),
+    process.env.JWT_SECRET,
     { subject: String(user._id), expiresIn: '1h', algorithm: 'HS256' }
   );
 }
@@ -38,7 +38,7 @@ router.post('/register', registrationLimit, async (req, res) => {
     if (typeof name !== 'string' || name.trim().length < 2 || name.trim().length > 100 || !normalizedEmail || typeof password !== 'string' || password.length < 12 || password.length > 128) {
       return res.status(400).json({ error: 'Name, valid email and a password of 12–128 characters are required' });
     }
-    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(normalizedEmail)) return res.status(400).json({ error: 'A valid email address is required' });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) return res.status(400).json({ error: 'A valid email address is required' });
     const existing = await User.findOne({ email: normalizedEmail }).select('_id');
     if (existing) return res.status(409).json({ error: 'An account with this email already exists' });
     const user = await User.create({
@@ -59,8 +59,8 @@ router.post('/login', loginLimit, async (req, res) => {
     if (!loginId || typeof password !== 'string' || password.length > 128) return res.status(400).json({ error: 'Email/UID and password are required' });
     if (role && !ALLOWED_LOGIN_ROLES.includes(role)) return res.status(400).json({ error: 'Invalid role' });
     const user = await User.findOne({ $or: [{ email: loginId.toLowerCase() }, { uid: loginId }], ...(role ? { role } : {}) }).select('+password');
-    if (!user || !/^\\$2[aby]\\$\\d{2}\\$/.test(String(user.password || '')) || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ error: 'Invalid credentials. If this is a legacy account, complete the documented password migration first.' });
+    if (!user || !/^\$2[aby]\$\d{2}\$/.test(String(user.password || '')) || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ error: 'Invalid credentials. Legacy accounts require the documented password migration first.' });
     }
     const token = issueToken(user);
     return res.json({ msg: 'Login successful', user: safeUser(user), token, expiresIn: 3600 });
