@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "test": "jest tests/ --runInBand",
-    "migrate:passwords": "node scripts/migrate-plaintext-passwords.js"
+    "migrate:passwords": "node scripts/migrate-plaintext-passwords.js",
+    "create:admin": "node scripts/create-admin.js"
   },
   "keywords": [],
   "author": "",
