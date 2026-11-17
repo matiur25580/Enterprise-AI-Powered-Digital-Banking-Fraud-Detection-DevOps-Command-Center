@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Landing from './pages/Landing.tsx'
 import Login from './pages/auth/Login.tsx'
 import Register from './pages/auth/Register.tsx'
@@ -14,6 +14,16 @@ import Disputes from './pages/bank/Disputes.tsx'
 import Scheduled from './pages/bank/Scheduled.tsx'
 import Staff from './pages/bank/Staff.tsx'
 import TwoFA from './pages/bank/TwoFA.tsx'
+
+function ProtectedRoute({ children, roles }) {
+  let user = {};
+  try { user = JSON.parse(localStorage.getItem('trustshield_user') || '{}'); } catch (error) {}
+  const token = localStorage.getItem('trustshield_token');
+  if (!token || !user.role) return <Navigate to="/login" replace />;
+  if (roles && !roles.includes(user.role)) return <Navigate to="/login" replace />;
+  return children;
+}
+
 export default function App(){
   return (
     <BrowserRouter>
@@ -24,15 +34,15 @@ export default function App(){
         <Route path="/forgot" element={<ForgotPassword />} />
         <Route path="/verify-otp" element={<VerifyOtp />} />
         <Route path="/success" element={<Success />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/customer" element={<Customer />} />
-        <Route path="/riskmanager" element={<RiskManager />} />
-        <Route path="/supportagent" element={<SupportAgent />} />
-        <Route path="/kyc" element={<Kyc />} />
-        <Route path="/disputes" element={<Disputes />} />
-        <Route path="/scheduled" element={<Scheduled />} />
-        <Route path="/staff" element={<Staff />} />
-        <Route path="/2fa" element={<TwoFA />} />
+        <Route path="/admin" element={<ProtectedRoute roles={['Admin']}><Admin /></ProtectedRoute>} />
+        <Route path="/customer" element={<ProtectedRoute roles={['Customer']}><Customer /></ProtectedRoute>} />
+        <Route path="/riskmanager" element={<ProtectedRoute roles={['RiskManager']}><RiskManager /></ProtectedRoute>} />
+        <Route path="/supportagent" element={<ProtectedRoute roles={['SupportAgent']}><SupportAgent /></ProtectedRoute>} />
+        <Route path="/kyc" element={<ProtectedRoute roles={['Customer','Admin','RiskManager','SupportAgent']}><Kyc /></ProtectedRoute>} />
+        <Route path="/disputes" element={<ProtectedRoute roles={['Customer','Admin','SupportAgent']}><Disputes /></ProtectedRoute>} />
+        <Route path="/scheduled" element={<ProtectedRoute roles={['Customer','Admin']}><Scheduled /></ProtectedRoute>} />
+        <Route path="/staff" element={<ProtectedRoute roles={['Admin']}><Staff /></ProtectedRoute>} />
+        <Route path="/2fa" element={<ProtectedRoute roles={['Customer','Admin','RiskManager','SupportAgent']}><TwoFA /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   )
