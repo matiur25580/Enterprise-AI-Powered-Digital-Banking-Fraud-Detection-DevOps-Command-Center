@@ -14,7 +14,7 @@ async function migrate() {
   }
 
   await mongoose.connect(process.env.MONGO_URI);
-  const counts = { scanned: 0, migrated: 0, bcryptSkipped: 0, argon2Skipped: 0, emptySkipped: 0, changedDuringRun: 0 };
+  const counts = { scanned: 0, candidates: 0, migrated: 0, bcryptSkipped: 0, argon2Skipped: 0, emptySkipped: 0, changedDuringRun: 0 };
   try {
     const cursor = User.find({}).select('+password').lean().cursor();
     for await (const user of cursor) {
@@ -25,7 +25,7 @@ async function migrate() {
       if (ARGON2_RE.test(stored)) { counts.argon2Skipped += 1; continue; }
 
       if (!APPLY) {
-        counts.migrated += 1; // Candidate count only; no writes in dry-run mode.
+        counts.candidates += 1; // Candidate count only; no writes in dry-run mode.
         continue;
       }
 
