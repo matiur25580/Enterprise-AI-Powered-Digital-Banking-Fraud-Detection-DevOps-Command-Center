@@ -53,7 +53,7 @@ export default function ForgotPassword(){
           <button disabled={busy||!email} onClick={requestCode} style={{...inputStyle,background:'#2563eb',color:'#fff',border:'none',fontWeight:'bold'}}>{busy?'Sending...':'Send recovery code'}</button>
         ):(
           <>
-            <input placeholder="6-digit recovery code" inputMode="numeric" maxLength={6} value={code} onChange={e=>setCode(e.target.value.replace(/\\D/g,''))} style={inputStyle}/>
+            <input placeholder="6-digit recovery code" inputMode="numeric" maxLength={6} value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,''))} style={inputStyle}/>
             <input placeholder="New password (12+ characters)" type="password" value={password} onChange={e=>setPassword(e.target.value)} style={inputStyle}/>
             <input placeholder="Confirm new password" type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} style={inputStyle}/>
             <button disabled={busy} onClick={resetPassword} style={{...inputStyle,background:'#2563eb',color:'#fff',border:'none',fontWeight:'bold'}}>{busy?'Updating...':'Reset password'}</button>
