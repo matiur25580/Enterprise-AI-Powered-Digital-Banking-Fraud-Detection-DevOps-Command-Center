@@ -223,7 +223,8 @@ function mailTransport() {
   }
   return require('nodemailer').createTransport({
     host, port, secure: String(process.env.SMTP_SECURE || (port === 465)) === 'true',
-    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+    connectionTimeout: 10000, greetingTimeout: 10000, socketTimeout: 15000
   });
 }
 
