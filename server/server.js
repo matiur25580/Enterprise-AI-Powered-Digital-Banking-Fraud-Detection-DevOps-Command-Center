@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const { Server } = require('socket.io');
 const { authenticate, requireRole, getJwtSecret } = require('./src/middleware/auth');
+const User = require('./src/models/User');
 
 dotenv.config();
 const app = express();
@@ -47,13 +48,17 @@ app.use('/api/twofa', require('./src/routes/twofa'));
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: allowedOrigins, credentials: true } });
-io.use((socket, next) => {
+io.use(async (socket, next) => {
   try {
-    const secret = getJwtSecret();
     const token = socket.handshake.auth && socket.handshake.auth.token;
     if (!token) return next(new Error('Authentication required'));
-    const payload = jwt.verify(token, secret, { algorithms: ['HS256'] });
-    socket.user = { id: payload.sub, uid: payload.uid, role: payload.role };
+    const payload = jwt.verify(token, getJwtSecret(), { algorithms: ['HS256'] });
+    if (!payload.sub || !payload.role || !Number.isInteger(payload.tv)) return next(new Error('Invalid session'));
+    const user = await User.findById(payload.sub).select('uid role tokenVersion');
+    if (!user || user.role !== payload.role || user.uid !== payload.uid || (user.tokenVersion || 0) !== payload.tv) {
+      return next(new Error('Session revoked or no longer valid'));
+    }
+    socket.user = { id: String(user._id), uid: user.uid, role: user.role };
     return next();
   } catch (error) {
     return next(new Error('Invalid or expired session'));
