@@ -36,7 +36,7 @@ Public registration creates Customer accounts only. To provision the first admin
 - Two-factor authentication for login and email ownership verification at registration are not implemented. The previous placeholder 2FA endpoint remains disabled.
 - Customer balance, transfers, bills, cards and fixed deposits in the current UI are demonstration-only local state. No real funds are moved.
 - The API transfer endpoint only records a review request; it does not execute a financial transfer.
-- Security audit events are persisted for login success/failure, refresh-token replay, password reset and logout. Admin/RiskManager can read bounded, paginated audit records. Business audit coverage for financial operations, KYC, loans, disputes, deposits, compliance and staff workflows is not complete; those placeholder endpoints remain HTTP 501.
+- Security audit events are persisted for login success/failure, refresh-token replay, password reset, logout, and transfer-review request success/failure (recipient is represented by a SHA-256 hash; the amount and review status are recorded). Admin/RiskManager can read bounded, paginated audit records. Business audit coverage for financial operations, KYC, loans, disputes, deposits, compliance and staff workflows is not complete; those placeholder endpoints remain HTTP 501.
 - Statement PDF generation is not implemented and returns HTTP 501.
 - FX conversion uses static demonstration rates and is not a live quote.
 - Authentication and role gates are a security baseline, not a complete banking authorization model. Independent security review, resource-level authorization, monitoring, backup/restore drills and regulatory review are required before production use.
