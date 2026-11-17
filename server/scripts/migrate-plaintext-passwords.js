@@ -3,25 +3,46 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const User = require('../src/models/User');
 
+const APPLY = process.argv.includes('--apply');
+const BCRYPT_RE = /^\$2[aby]\$\d{2}\$/;
+const ARGON2_RE = /^\$argon2(id|i|d)\$/;
+
 async function migrate() {
   if (!process.env.MONGO_URI) throw new Error('MONGO_URI is required');
+  if (APPLY && (process.env.CONFIRM_PRODUCTION_BACKUP !== 'YES' || process.env.CONFIRM_RESTORE_TEST !== 'YES')) {
+    throw new Error('Refusing --apply: set CONFIRM_PRODUCTION_BACKUP=YES and CONFIRM_RESTORE_TEST=YES only after verifying a restorable backup.');
+  }
+
   await mongoose.connect(process.env.MONGO_URI);
-  let migrated = 0;
-  let skipped = 0;
+  const counts = { scanned: 0, migrated: 0, bcryptSkipped: 0, argon2Skipped: 0, emptySkipped: 0, changedDuringRun: 0 };
   try {
-    const users = await User.find({}).select('+password');
-    for (const user of users) {
+    const cursor = User.find({}).select('+password').lean().cursor();
+    for await (const user of cursor) {
+      counts.scanned += 1;
       const stored = String(user.password || '');
-      if (!stored) { skipped += 1; continue; }
-      if (/^\$2[aby]\$\d{2}\$/.test(stored) || /^\$argon2(id|i|d)\$/.test(stored)) {
-        skipped += 1;
+      if (!stored) { counts.emptySkipped += 1; continue; }
+      if (BCRYPT_RE.test(stored)) { counts.bcryptSkipped += 1; continue; }
+      if (ARGON2_RE.test(stored)) { counts.argon2Skipped += 1; continue; }
+
+      if (!APPLY) {
+        counts.migrated += 1; // Candidate count only; no writes in dry-run mode.
         continue;
       }
-      user.password = await bcrypt.hash(stored, 12);
-      await user.save();
-      migrated += 1;
+
+      const passwordHash = await bcrypt.hash(stored, 12);
+      // Compare-and-set prevents overwriting a password changed concurrently.
+      const result = await User.updateOne(
+        { _id: user._id, password: user.password },
+        { $set: { password: passwordHash } }
+      );
+      if (result.modifiedCount === 1) counts.migrated += 1;
+      else counts.changedDuringRun += 1;
     }
-    process.stdout.write('Password migration complete. Migrated: ' + migrated + ', skipped: ' + skipped + '\n');
+    process.stdout.write(JSON.stringify({
+      mode: APPLY ? 'APPLY' : 'DRY_RUN',
+      ...counts,
+      note: 'No credentials or user identifiers are printed. Argon2 hashes are left untouched and require Argon2 verification support or a controlled reset.'
+    }, null, 2) + '\\n');
   } finally {
     await mongoose.disconnect();
   }
