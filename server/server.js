@@ -1,40 +1,75 @@
-const express=require('express');
-const cors=require('cors');
-const dotenv=require('dotenv');
-const http=require('http');
-const {Server}=require('socket.io');
-dotenv.config();
-const app=express();
-app.use(cors());
-app.use(express.json());
-app.use('/api/auth',require('./src/routes/auth'));
-app.use('/api/bank',require('./src/routes/transactions'));
-app.use('/api/audit',require('./src/routes/audit'));
-app.use('/api/statements',require('./src/routes/statements'));
-app.use('/api/large',require('./src/routes/largeTransfer'));
-app.use('/api/alerts',require('./src/routes/alerts'));
-app.use('/api/ai',require('./src/routes/aiMetrics'));
-app.get('/api/health',(req,res)=>res.json({status:'TrustShield OK 6 features'}));
-const server=http.createServer(app);
-const io=new Server(server,{cors:{origin:'*'}});
-require('./src/routes/realtime')(io);
-const PORT=process.env.PORT||5000;
-server.listen(PORT,()=>console.log('Server+WS on '+PORT));
-app.use('/api/loans',require('./src/routes/loans'));
-app.use('/api/wallet',require('./src/routes/wallet'));
-app.use('/api/compliance',require('./src/routes/compliance'));
-app.use('/api/notifications',require('./src/routes/notifications'));
-app.use('/api/branches',require('./src/routes/branches'));
-app.use('/api/creditScore',require('./src/routes/creditScore'));
-app.use('/api/settlement',require('./src/routes/settlement'));
-app.use('/api/chatbot',require('./src/routes/chatbot'));
-app.use('/api/deposits',require('./src/routes/deposits'));
-app.use('/api/analytics',require('./src/routes/analytics'));
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const http = require('http');
+const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
+const { Server } = require('socket.io');
+const { authenticate, getJwtSecret } = require('./src/middleware/auth');
 
-const mongoose=require("mongoose");
-mongoose.connect(process.env.MONGO_URI).then(()=>console.log("MongoDB connected")).catch(e=>console.log("DB error:"+e.message));
-app.use('/api/kyc',require('./src/routes/kyc'));
-app.use('/api/disputes',require('./src/routes/disputes'));
-app.use('/api/scheduled',require('./src/routes/scheduled'));
-app.use('/api/staff',require('./src/routes/staff'));
-app.use('/api/twofa',require('./src/routes/twofa'));
+dotenv.config();
+const app = express();
+const allowedOrigins = (process.env.CLIENT_URL || '').split(',').map(value => value.trim()).filter(Boolean);
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Origin not allowed by CORS'));
+  },
+  credentials: true
+}));
+app.use(express.json({ limit: '1mb' }));
+
+app.get('/api/health', (req, res) => res.json({ status: 'TrustShield API available' }));
+app.use('/api/auth', require('./src/routes/auth'));
+
+// All banking/business API routes below this point require a valid bearer token.
+app.use('/api', authenticate);
+app.use('/api/bank', require('./src/routes/transactions'));
+app.use('/api/audit', require('./src/routes/audit'));
+app.use('/api/statements', require('./src/routes/statements'));
+app.use('/api/large', require('./src/routes/largeTransfer'));
+app.use('/api/alerts', require('./src/routes/alerts'));
+app.use('/api/ai', require('./src/routes/aiMetrics'));
+app.use('/api/loans', require('./src/routes/loans'));
+app.use('/api/wallet', require('./src/routes/wallet'));
+app.use('/api/compliance', require('./src/routes/compliance'));
+app.use('/api/notifications', require('./src/routes/notifications'));
+app.use('/api/branches', require('./src/routes/branches'));
+app.use('/api/creditScore', require('./src/routes/creditScore'));
+app.use('/api/settlement', require('./src/routes/settlement'));
+app.use('/api/chatbot', require('./src/routes/chatbot'));
+app.use('/api/deposits', require('./src/routes/deposits'));
+app.use('/api/analytics', require('./src/routes/analytics'));
+app.use('/api/kyc', require('./src/routes/kyc'));
+app.use('/api/disputes', require('./src/routes/disputes'));
+app.use('/api/scheduled', require('./src/routes/scheduled'));
+app.use('/api/staff', require('./src/routes/staff'));
+app.use('/api/twofa', require('./src/routes/twofa'));
+
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: allowedOrigins, credentials: true } });
+io.use((socket, next) => {
+  try {
+    const secret = getJwtSecret();
+    const token = socket.handshake.auth && socket.handshake.auth.token;
+    if (!token) return next(new Error('Authentication required'));
+    const payload = jwt.verify(token, secret, { algorithms: ['HS256'] });
+    socket.user = { id: payload.sub, uid: payload.uid, role: payload.role };
+    return next();
+  } catch (error) {
+    return next(new Error('Invalid or expired session'));
+  }
+});
+require('./src/routes/realtime')(io);
+
+const PORT = process.env.PORT || 5000;
+async function start() {
+  getJwtSecret();
+  if (!process.env.MONGO_URI) throw new Error('MONGO_URI must be configured');
+  await mongoose.connect(process.env.MONGO_URI);
+  server.listen(PORT, () => console.log('TrustShield API listening on ' + PORT));
+}
+start().catch(error => {
+  console.error('Startup failed:', error.message);
+  process.exit(1);
+});
