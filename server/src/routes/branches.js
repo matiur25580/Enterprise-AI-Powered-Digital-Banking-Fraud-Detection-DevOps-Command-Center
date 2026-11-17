@@ -1,6 +1,11 @@
-const express=require('express');
-const r=express.Router();
-let branches=[{id:'BR001',name:'Mumbai HQ',staff:45},{id:'BR002',name:'Delhi Branch',staff:28}];
-r.get('/list',(req,res)=>res.json(branches));
-r.post('/add',(req,res)=>{ const b={id:'BR'+Date.now(),...req.body}; branches.push(b); res.json({msg:'Branch added successfully',b}); });
-module.exports=r;
+const express = require('express');
+const router = express.Router();
+
+// This placeholder is deliberately disabled: it returned mock or unscoped data.
+router.use((req, res) => res.status(501).json({
+  error: 'branches is temporarily unavailable',
+  code: 'FEATURE_NOT_READY',
+  message: 'A persistent, authorized and audited implementation is required before this feature can be enabled.'
+}));
+
+module.exports = router;
