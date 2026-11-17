@@ -320,3 +320,4 @@ router.get('/admin/users', authenticate, requireRole('Admin'), async (req, res) 
 });
 
 module.exports = router;
+module.exports.security = { hashToken, hashResetCode, validCsrf };
