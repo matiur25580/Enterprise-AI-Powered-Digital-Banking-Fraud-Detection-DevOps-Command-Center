@@ -8,24 +8,20 @@ export default function Admin() {
   const [msg, setMsg] = useState('');
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({total:0, customers:0, admins:0});
-  const toggleSuspend=(email:string)=>{
-    setUsers(users.map((u:any)=>u.email===email?{...u,suspended:!u.suspended}:u));
-    const usr=(users as any[]).find((x:any)=>x.email===email);
-    setMsg(email+(usr && !usr.suspended?' suspended':' activated'));
-  };
-  const changeRole=(email:string, newRole:string)=>{
-    setUsers(users.map((u:any)=>u.email===email?{...u,role:newRole}:u));
-    setMsg(email+' role changed to '+newRole);
-  };
+  const toggleSuspend=(email:string)=>{ setMsg('Suspension changes require the secured admin API.'); };
+  const changeRole=(email:string, newRole:string)=>{ setMsg('Role changes require the secured admin API.'); };
   const dark = theme==='dark';
   const card={background:dark?'#111f3a':'#fff',padding:'20px',borderRadius:'16px',margin:'12px 0',boxShadow:'0 4px 12px rgba(0,0,0,0.2)'};
   const stat={flex:1,minWidth:'140px',background:dark?'#1e293b':'#f1f5f9',padding:'16px',borderRadius:'12px',textAlign:'center' as const};
   useEffect(()=>{ const t=setInterval(()=>setDt(getDateTime()),1000); return ()=>clearInterval(t); },[]);
   useEffect(()=>{
     const api=(import.meta as any).env.VITE_API_URL||'http://localhost:5000';
-    fetch(api+'/api/admin/users').then(r=>r.json()).then(d=>{
-      if(Array.isArray(d)){ setUsers(d); setStats({total:d.length, customers:d.filter((u:any)=>u.role==='Customer').length, admins:d.filter((u:any)=>u.role==='Admin').length}); }
-    }).catch(()=>{});
+    const token=localStorage.getItem('trustshield_token');
+    if(!token || user.role!=='Admin'){ window.location.href='/login'; return; }
+    fetch(api+'/api/auth/admin/users',{headers:{Authorization:'Bearer '+token}})
+      .then(r=>{ if(r.status===401||r.status===403){window.location.href='/login';return [];} return r.json(); })
+      .then(d=>{ if(Array.isArray(d)){ setUsers(d); setStats({total:d.length, customers:d.filter((u:any)=>u.role==='Customer').length, admins:d.filter((u:any)=>u.role==='Admin').length}); } })
+      .catch(()=>{});
   },[]);
   return (
     <div style={{ background: dark?'#0a0a0a':'#f1f5f9', color: dark?'#fff':'#000', minHeight:'100vh', padding:'20px' }}>
@@ -35,7 +31,7 @@ export default function Admin() {
       <div style={{ display:'flex', justifyContent:'space-between', marginTop:'10px', flexWrap:'wrap' }}>
         <div><p>Date: {dt.dateStr}</p><p>Time: {dt.timeStr}</p></div>
         <div>
-          <button onClick={()=>{localStorage.removeItem('token'); window.location.href='/login';}} style={{marginRight:'10px',padding:'8px 16px',borderRadius:'8px'}}>Logout</button>
+          <button onClick={()=>{localStorage.removeItem('trustshield_token');localStorage.removeItem('trustshield_user');window.location.href='/login';}} style={{marginRight:'10px',padding:'8px 16px',borderRadius:'8px'}}>Logout</button>
           <button onClick={()=>setTheme(dark?'light':'dark')} style={{padding:'8px 16px',borderRadius:'8px'}}>🌙/☀️</button>
         </div>
       </div>
@@ -67,16 +63,8 @@ export default function Admin() {
           <div style={{flex:1,padding:'12px',background:dark?'#78350f':'#fef3c7',borderRadius:'10px',textAlign:'center',color:dark?'#ffffff':'#000000'}}><b>{stats.admins}</b><br/>Admins</div>
         </div>
         <table style={{width:'100%',fontSize:'12px',borderCollapse:'collapse',color:dark?'#ffffff':'#000000'}}>
-          <thead><tr><th>Email</th><th>Role</th><th>UID</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>{users.map((u:any,i:number)=><tr key={i} style={{borderTop:'1px solid #eee'}}>
-          <td>{u.email}</td>
-          <td><select value={u.role} onChange={e=>changeRole(u.email,e.target.value)} style={{padding:'4px',borderRadius:'4px'}}>
-            <option>Customer</option><option>Admin</option><option>RiskManager</option><option>SupportAgent</option>
-          </select></td>
-          <td>{u.uid}</td>
-          <td>{u.suspended?<span style={{color:'#dc2626'}}>Suspended</span>:<span style={{color:'#16a34a'}}>Active</span>}</td>
-          <td><button onClick={()=>toggleSuspend(u.email)} style={{padding:'4px 10px',borderRadius:'6px',border:'none',background:u.suspended?'#16a34a':'#dc2626',color:'#fff',fontSize:'12px'}}>{u.suspended?'Activate':'Suspend'}</button></td>
-        </tr>)}</tbody>
+          <thead><tr><th>Email</th><th>Role</th><th>UID</th></tr></thead>
+          <tbody>{users.map((u:any,i:number)=><tr key={i} style={{borderTop:'1px solid #eee'}}><td>{u.email}</td><td>{u.role}</td><td>{u.uid}</td></tr>)}</tbody>
         </table>
       </div>
     </div>
