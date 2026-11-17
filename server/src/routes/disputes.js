@@ -1,7 +1,11 @@
-const express=require('express');
-const r=express.Router();
-let tickets=[];
-r.post('/raise',(req,res)=>{ const t={id:'DSP'+Date.now(),...req.body,status:'Open'}; tickets.push(t); res.json({msg:'Dispute raised successfully',t}); });
-r.get('/list',(req,res)=>res.json(tickets));
-r.post('/resolve/:id',(req,res)=>{ const t=tickets.find(x=>x.id===req.params.id); if(t) t.status='Resolved'; res.json({msg:'Dispute resolved successfully',t}); });
-module.exports=r;
+const express = require('express');
+const router = express.Router();
+
+// Disabled until persistent storage, ownership checks, audit trails and integration tests exist.
+router.use((req, res) => res.status(501).json({
+  error: 'disputes is temporarily unavailable',
+  code: 'FEATURE_NOT_READY',
+  message: 'This operation is not implemented as a secure production workflow. No data or funds were changed.'
+}));
+
+module.exports = router;
