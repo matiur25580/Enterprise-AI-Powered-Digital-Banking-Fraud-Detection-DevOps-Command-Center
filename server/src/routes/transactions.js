@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const Tx = require('../models/Transaction');
+const { recordSecurityEvent, hashSubject } = require('../security/audit');
 const router = express.Router();
 
 // This prototype records a transfer request only. It does not move funds or debit an account.
@@ -33,11 +34,24 @@ router.post('/transfer', async (req, res) => {
       fraudScore,
       status
     });
+    await recordSecurityEvent(req, {
+      actorUserId: req.user.id,
+      action: 'transaction.transfer_review',
+      outcome: 'success',
+      subjectHash: hashSubject(recipient),
+      details: { transactionId: String(tx._id), amount, status, fundsMoved: false }
+    });
     return res.status(202).json({
       msg: 'Transfer request recorded for review. No funds have been moved.',
       tx
     });
   } catch (error) {
+    await recordSecurityEvent(req, {
+      actorUserId: req.user && req.user.id,
+      action: 'transaction.transfer_review',
+      outcome: 'failure',
+      details: { reason: 'request_not_recorded', fundsMoved: false }
+    });
     return res.status(500).json({ error: 'Unable to record transfer request' });
   }
 });
