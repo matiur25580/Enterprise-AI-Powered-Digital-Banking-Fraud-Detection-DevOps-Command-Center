@@ -1,6 +1,11 @@
-const express=require('express');
-const r=express.Router();
-let logs=[];
-r.post('/log', (req,res)=>{ const e={...req.body, time:new Date()}; logs.push(e); res.json({msg:'Logged', e}); });
-r.get('/logs', (req,res)=>{ res.json(logs.slice(-50)); });
-module.exports=r;
+const express = require('express');
+const router = express.Router();
+
+// This placeholder is deliberately disabled: it returned mock or unscoped data.
+router.use((req, res) => res.status(501).json({
+  error: 'audit is temporarily unavailable',
+  code: 'FEATURE_NOT_READY',
+  message: 'A persistent, authorized and audited implementation is required before this feature can be enabled.'
+}));
+
+module.exports = router;
