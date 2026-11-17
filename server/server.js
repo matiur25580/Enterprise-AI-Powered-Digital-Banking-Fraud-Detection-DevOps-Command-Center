@@ -5,7 +5,7 @@ const http = require('http');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const { Server } = require('socket.io');
-const { authenticate, getJwtSecret } = require('./src/middleware/auth');
+const { authenticate, requireRole, getJwtSecret } = require('./src/middleware/auth');
 
 dotenv.config();
 const app = express();
@@ -21,29 +21,28 @@ app.use(express.json({ limit: '1mb' }));
 
 app.get('/api/health', (req, res) => res.json({ status: 'TrustShield API available' }));
 app.use('/api/auth', require('./src/routes/auth'));
-
-// All banking/business API routes below this point require a valid bearer token.
 app.use('/api', authenticate);
+
 app.use('/api/bank', require('./src/routes/transactions'));
-app.use('/api/audit', require('./src/routes/audit'));
+app.use('/api/audit', requireRole('Admin', 'RiskManager'), require('./src/routes/audit'));
 app.use('/api/statements', require('./src/routes/statements'));
 app.use('/api/large', require('./src/routes/largeTransfer'));
-app.use('/api/alerts', require('./src/routes/alerts'));
-app.use('/api/ai', require('./src/routes/aiMetrics'));
+app.use('/api/alerts', requireRole('Admin'), require('./src/routes/alerts'));
+app.use('/api/ai', requireRole('Admin', 'RiskManager'), require('./src/routes/aiMetrics'));
 app.use('/api/loans', require('./src/routes/loans'));
 app.use('/api/wallet', require('./src/routes/wallet'));
-app.use('/api/compliance', require('./src/routes/compliance'));
+app.use('/api/compliance', requireRole('Admin', 'RiskManager'), require('./src/routes/compliance'));
 app.use('/api/notifications', require('./src/routes/notifications'));
-app.use('/api/branches', require('./src/routes/branches'));
+app.use('/api/branches', requireRole('Admin'), require('./src/routes/branches'));
 app.use('/api/creditScore', require('./src/routes/creditScore'));
-app.use('/api/settlement', require('./src/routes/settlement'));
+app.use('/api/settlement', requireRole('Admin'), require('./src/routes/settlement'));
 app.use('/api/chatbot', require('./src/routes/chatbot'));
 app.use('/api/deposits', require('./src/routes/deposits'));
-app.use('/api/analytics', require('./src/routes/analytics'));
+app.use('/api/analytics', requireRole('Admin', 'RiskManager'), require('./src/routes/analytics'));
 app.use('/api/kyc', require('./src/routes/kyc'));
 app.use('/api/disputes', require('./src/routes/disputes'));
 app.use('/api/scheduled', require('./src/routes/scheduled'));
-app.use('/api/staff', require('./src/routes/staff'));
+app.use('/api/staff', requireRole('Admin'), require('./src/routes/staff'));
 app.use('/api/twofa', require('./src/routes/twofa'));
 
 const server = http.createServer(app);
