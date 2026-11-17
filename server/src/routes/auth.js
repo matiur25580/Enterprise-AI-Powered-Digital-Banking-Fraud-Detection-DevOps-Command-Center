@@ -21,10 +21,10 @@ const recoveryLimit = rateLimit({ windowMs: 60 * 60 * 1000, max: 5, message: 'To
 const otpVerifyLimit = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: 'Too many OTP attempts. Try again later.' });
 
 function genUID(name, dob) {
-  const parts = String(name || 'Customer X').trim().split(/\\s+/);
+  const parts = String(name || 'Customer X').trim().split(/\s+/);
   const first = (parts[0] || 'X')[0].toUpperCase();
   const last = (parts.length > 1 ? parts[parts.length - 1][0] : 'X').toUpperCase();
-  const digits = String(dob || '01012000').replace(/\\D/g, '').padEnd(8, '0').slice(0, 8);
+  const digits = String(dob || '01012000').replace(/\D/g, '').padEnd(8, '0').slice(0, 8);
   return 'C' + first + last + digits + crypto.randomBytes(4).toString('hex').toUpperCase();
 }
 
@@ -115,7 +115,7 @@ router.post('/register', registrationLimit, async (req, res) => {
     if (typeof name !== 'string' || name.trim().length < 2 || name.trim().length > 100 || !normalizedEmail || typeof password !== 'string' || password.length < 12 || password.length > 128) {
       return res.status(400).json({ error: 'Name, valid email and a password of 12–128 characters are required' });
     }
-    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(normalizedEmail)) return res.status(400).json({ error: 'A valid email address is required' });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) return res.status(400).json({ error: 'A valid email address is required' });
     const existing = await User.findOne({ email: normalizedEmail }).select('_id');
     if (existing) return res.status(409).json({ error: 'An account with this email already exists' });
     const user = await User.create({
@@ -136,7 +136,7 @@ router.post('/login', loginLimit, async (req, res) => {
     if (!loginId || typeof password !== 'string' || password.length > 128) return res.status(400).json({ error: 'Email/UID and password are required' });
     if (role && !ALLOWED_LOGIN_ROLES.includes(role)) return res.status(400).json({ error: 'Invalid role' });
     const user = await User.findOne({ $or: [{ email: loginId.toLowerCase() }, { uid: loginId }], ...(role ? { role } : {}) }).select('+password');
-    if (!user || !/^\\$2[aby]\\$\\d{2}\\$/.test(String(user.password || '')) || !(await bcrypt.compare(password, user.password))) {
+    if (!user || !/^\$2[aby]\$\d{2}\$/.test(String(user.password || '')) || !(await bcrypt.compare(password, user.password))) {
       await recordSecurityEvent(req, { action: 'auth.login', outcome: 'failure', subjectHash: hashSubject(loginId), details: { reason: 'invalid_credentials' } });
       return res.status(401).json({ error: 'Invalid credentials. Legacy accounts require the documented password migration first.' });
     }
@@ -231,7 +231,7 @@ function mailTransport() {
 router.post('/password/forgot', recoveryLimit, async (req, res) => {
   const email = String((req.body && req.body.email) || '').trim().toLowerCase();
   const generic = { msg: 'If an eligible account exists, password recovery instructions will be sent.' };
-  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return res.status(202).json(generic);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(202).json(generic);
   try {
     const matches = await User.find({ email }).select('_id email').limit(2).lean();
     if (matches.length !== 1) return res.status(202).json(generic);
@@ -262,7 +262,7 @@ router.post('/password/reset', otpVerifyLimit, async (req, res) => {
   const email = String((req.body && req.body.email) || '').trim().toLowerCase();
   const code = String((req.body && req.body.code) || '');
   const password = req.body && req.body.newPassword;
-  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || !/^\\d{6}$/.test(code) || typeof password !== 'string' || password.length < 12 || password.length > 128) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !/^\d{6}$/.test(code) || typeof password !== 'string' || password.length < 12 || password.length > 128) {
     return res.status(400).json({ error: 'Valid email, six-digit code and a 12–128 character new password are required' });
   }
   try {
