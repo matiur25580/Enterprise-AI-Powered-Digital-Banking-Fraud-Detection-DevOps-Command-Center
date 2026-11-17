@@ -315,6 +315,7 @@ router.post('/logout', authenticate, async (req, res) => {
 router.post('/logout-all', authenticate, async (req, res) => {
   try {
     await revokeUserSessions(req.user.id);
+    await recordSecurityEvent(req, { actorUserId: req.user.id, action: 'auth.logout_all', outcome: 'success' });
     clearRefreshCookies(res);
     return res.json({ msg: 'All sessions revoked. Please sign in again.' });
   } catch (error) { return res.status(500).json({ error: 'Unable to revoke sessions' }); }
