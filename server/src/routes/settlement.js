@@ -1,8 +1,11 @@
-const express=require('express');
-const r=express.Router();
-r.post('/swift',(req,res)=>{
-  const utr='UTR'+Date.now();
-  res.json({msg:'Inter-bank settlement initiated',utr,status:'Processing',eta:'2 hours'});
-});
-r.get('/status/:utr',(req,res)=>res.json({utr:req.params.utr,status:'Settled'}));
-module.exports=r;
+const express = require('express');
+const router = express.Router();
+
+// This placeholder is deliberately disabled: it returned mock or unscoped data.
+router.use((req, res) => res.status(501).json({
+  error: 'settlement is temporarily unavailable',
+  code: 'FEATURE_NOT_READY',
+  message: 'A persistent, authorized and audited implementation is required before this feature can be enabled.'
+}));
+
+module.exports = router;
