@@ -2,9 +2,11 @@ const express = require('express');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 const router = express.Router();
 const User = require('../models/User');
 const RefreshSession = require('../models/RefreshSession');
+const PasswordResetChallenge = require('../models/PasswordResetChallenge');
 const { authenticate, requireRole } = require('../middleware/auth');
 const { rateLimit } = require('../middleware/rateLimit');
 
@@ -14,6 +16,8 @@ const REFRESH_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const loginLimit = rateLimit({ windowMs: 15 * 60 * 1000, max: 5, message: 'Too many login attempts. Try again in 15 minutes.' });
 const registrationLimit = rateLimit({ windowMs: 60 * 60 * 1000, max: 10, message: 'Too many registration attempts. Try again later.' });
 const refreshLimit = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, message: 'Too many refresh attempts. Try again later.' });
+const recoveryLimit = rateLimit({ windowMs: 60 * 60 * 1000, max: 5, message: 'Too many password recovery attempts. Try again later.' });
+const otpVerifyLimit = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: 'Too many OTP attempts. Try again later.' });
 
 function genUID(name, dob) {
   const parts = String(name || 'Customer X').trim().split(/\\s+/);
@@ -199,6 +203,93 @@ router.post('/refresh', refreshLimit, async (req, res) => {
   } catch (error) {
     clearRefreshCookies(res);
     return res.status(500).json({ error: 'Unable to refresh session' });
+  }
+});
+
+
+function hashResetCode(email, code) {
+  return crypto.createHmac('sha256', process.env.JWT_SECRET).update(email + ':' + code).digest('hex');
+}
+
+function mailTransport() {
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = Number(process.env.SMTP_PORT || 465);
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS || !Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error('SMTP email credentials are not configured');
+  }
+  return require('nodemailer').createTransport({
+    host, port, secure: String(process.env.SMTP_SECURE || (port === 465)) === 'true',
+    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+  });
+}
+
+router.post('/password/forgot', recoveryLimit, async (req, res) => {
+  const email = String((req.body && req.body.email) || '').trim().toLowerCase();
+  const generic = { msg: 'If an eligible account exists, password recovery instructions will be sent.' };
+  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) return res.status(202).json(generic);
+  try {
+    const matches = await User.find({ email }).select('_id email').limit(2).lean();
+    if (matches.length !== 1) return res.status(202).json(generic);
+    const user = matches[0];
+    const code = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
+    const challenge = await PasswordResetChallenge.create({
+      userId: user._id, email, codeHash: hashResetCode(email, code),
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000)
+    });
+    try {
+      await mailTransport().sendMail({
+        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+        to: email,
+        subject: 'TrustShield password reset code',
+        text: 'Your password reset code is ' + code + '. It expires in 10 minutes. If you did not request this, ignore this email.'
+      });
+    } catch (mailError) {
+      await PasswordResetChallenge.deleteOne({ _id: challenge._id });
+      return res.status(202).json(generic);
+    }
+    return res.status(202).json(generic);
+  } catch (error) {
+    return res.status(202).json(generic);
+  }
+});
+
+router.post('/password/reset', otpVerifyLimit, async (req, res) => {
+  const email = String((req.body && req.body.email) || '').trim().toLowerCase();
+  const code = String((req.body && req.body.code) || '');
+  const password = req.body && req.body.newPassword;
+  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || !/^\\d{6}$/.test(code) || typeof password !== 'string' || password.length < 12 || password.length > 128) {
+    return res.status(400).json({ error: 'Valid email, six-digit code and a 12–128 character new password are required' });
+  }
+  try {
+    const challenge = await PasswordResetChallenge.findOne({
+      email, consumedAt: null, expiresAt: { $gt: new Date() }, attempts: { $lt: 5 }
+    }).sort({ createdAt: -1 });
+    if (!challenge) return res.status(400).json({ error: 'Invalid or expired recovery code' });
+    const submittedHash = hashResetCode(email, code);
+    const expected = Buffer.from(challenge.codeHash, 'hex');
+    const submitted = Buffer.from(submittedHash, 'hex');
+    const matches = expected.length === submitted.length && crypto.timingSafeEqual(expected, submitted);
+    if (!matches) {
+      await PasswordResetChallenge.updateOne(
+        { _id: challenge._id, consumedAt: null, attempts: { $lt: 5 } },
+        { $inc: { attempts: 1 } }
+      );
+      return res.status(400).json({ error: 'Invalid or expired recovery code' });
+    }
+    const consumed = await PasswordResetChallenge.findOneAndUpdate(
+      { _id: challenge._id, consumedAt: null, attempts: { $lt: 5 }, expiresAt: { $gt: new Date() }, codeHash: submittedHash },
+      { $set: { consumedAt: new Date() } },
+      { new: true }
+    );
+    if (!consumed) return res.status(400).json({ error: 'Invalid or expired recovery code' });
+    const passwordHash = await bcrypt.hash(password, 12);
+    const updated = await User.updateOne({ _id: challenge.userId, email }, { $set: { password: passwordHash }, $inc: { tokenVersion: 1 } });
+    if (updated.modifiedCount !== 1) return res.status(400).json({ error: 'Unable to reset password for this account' });
+    await RefreshSession.updateMany({ userId: challenge.userId, revokedAt: null }, { $set: { revokedAt: new Date() } });
+    await PasswordResetChallenge.updateMany({ userId: challenge.userId, consumedAt: null }, { $set: { consumedAt: new Date() } });
+    return res.json({ msg: 'Password reset successful. Sign in with your new password.' });
+  } catch (error) {
+    return res.status(500).json({ error: 'Unable to reset password' });
   }
 });
 
