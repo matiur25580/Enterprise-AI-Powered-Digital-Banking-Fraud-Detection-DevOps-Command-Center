@@ -85,7 +85,7 @@ router.post('/logout-all', authenticate, async (req, res) => {
 });
 
 router.get('/admin/users', authenticate, requireRole('Admin'), async (req, res) => {
-  try { return res.json(await User.find({}).select('-password').limit(100).lean()); }
+  try { return res.json(await User.find({}).select('uid name email role createdAt').sort({ createdAt: -1 }).limit(100).lean()); }
   catch (error) { return res.status(500).json({ error: 'Unable to load users' }); }
 });
 
