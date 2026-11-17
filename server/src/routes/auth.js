@@ -45,11 +45,11 @@ function issueAccessToken(user) {
 }
 
 function cookieOptions(httpOnly) {
-  const production = process.env.NODE_ENV === 'production';
+  const secure = process.env.COOKIE_SECURE !== 'false';
   return {
     httpOnly,
-    secure: production,
-    sameSite: production ? 'none' : 'lax',
+    secure,
+    sameSite: secure ? 'none' : 'lax',
     path: '/api/auth'
   };
 }
