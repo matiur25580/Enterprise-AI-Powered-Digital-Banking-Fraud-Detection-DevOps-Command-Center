@@ -1,12 +1,11 @@
-const express=require('express');
-const r=express.Router();
-let fds=[];
-r.post('/fd',(req,res)=>{
-  const {amount,months}=req.body;
-  const rate=7.1;
-  const maturity=amount*Math.pow(1+rate/400,months/3);
-  const fd={id:'FD'+Date.now(),amount,months,rate,maturity:Math.round(maturity),status:'Active'};
-  fds.push(fd); res.json({msg:'FD created successfully',fd});
-});
-r.get('/fds',(req,res)=>res.json(fds));
-module.exports=r;
+const express = require('express');
+const router = express.Router();
+
+// Disabled until persistent storage, ownership checks, audit trails and integration tests exist.
+router.use((req, res) => res.status(501).json({
+  error: 'deposits is temporarily unavailable',
+  code: 'FEATURE_NOT_READY',
+  message: 'This operation is not implemented as a secure production workflow. No data or funds were changed.'
+}));
+
+module.exports = router;
