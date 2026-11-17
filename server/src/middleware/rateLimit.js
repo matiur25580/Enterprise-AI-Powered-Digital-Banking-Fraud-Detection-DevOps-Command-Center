@@ -1,9 +1,13 @@
 const buckets = new Map();
+let requestsSinceCleanup = 0;
 
 // Per-process fallback limiter. Use a shared Redis-backed store before horizontal scaling.
 function rateLimit({ windowMs, max, message }) {
   return (req, res, next) => {
     const now = Date.now();
+    if (++requestsSinceCleanup % 1000 === 0) {
+      for (const [key, value] of buckets) if (value.resetAt <= now) buckets.delete(key);
+    }
     const key = String(req.ip || req.socket.remoteAddress || 'unknown');
     let entry = buckets.get(key);
     if (!entry || entry.resetAt <= now) {
