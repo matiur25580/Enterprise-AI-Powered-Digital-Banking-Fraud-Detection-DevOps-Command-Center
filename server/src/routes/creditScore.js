@@ -1,7 +1,11 @@
-const express=require('express');
-const r=express.Router();
-r.get('/:userId',(req,res)=>{
-  const score=650+Math.floor(Math.random()*200);
-  res.json({userId:req.params.userId,score,grade:score>750?'Excellent':score>650?'Good':'Need Improvement',msg:'Credit score generated'});
-});
-module.exports=r;
+const express = require('express');
+const router = express.Router();
+
+// This placeholder is deliberately disabled: it returned mock or unscoped data.
+router.use((req, res) => res.status(501).json({
+  error: 'creditScore is temporarily unavailable',
+  code: 'FEATURE_NOT_READY',
+  message: 'A persistent, authorized and audited implementation is required before this feature can be enabled.'
+}));
+
+module.exports = router;
