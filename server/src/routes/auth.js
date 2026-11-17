@@ -16,14 +16,7 @@ function genUID(name, dob) {
 }
 
 function safeUser(user) {
-  return {
-    id: String(user._id),
-    uid: user.uid,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    dob: user.dob
-  };
+  return { id: String(user._id), uid: user.uid, name: user.name, email: user.email, role: user.role, dob: user.dob };
 }
 
 function issueToken(user) {
@@ -44,16 +37,22 @@ router.post('/register', async (req, res) => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       return res.status(400).json({ error: 'A valid email address is required' });
     }
-    const existing = await User.findOne({ email: normalizedEmail });
+    const existing = await User.findOne({ email: normalizedEmail }).select('_id');
     if (existing) return res.status(409).json({ error: 'An account with this email already exists' });
 
-    // Public registration can only create a Customer. Privileged roles must be provisioned by an administrator.
-    const uid = genUID(name, dob);
+    // Public registration can only create a Customer. Privileged roles are provisioned out-of-band.
     const passwordHash = await bcrypt.hash(password, 12);
-    const user = await User.create({ uid, name: String(name).trim(), email: normalizedEmail, password: passwordHash, role: 'Customer', dob });
+    const user = await User.create({
+      uid: genUID(name, dob),
+      name: String(name).trim(),
+      email: normalizedEmail,
+      password: passwordHash,
+      role: 'Customer',
+      dob
+    });
     return res.status(201).json({ msg: 'Registration successful', uid: user.uid, user: safeUser(user) });
   } catch (error) {
-    if (error && error.code === 11000) return res.status(409).json({ error: 'An account with this email already exists' });
+    if (error && error.code === 11000) return res.status(409).json({ error: 'An account with this email or UID already exists' });
     return res.status(500).json({ error: 'Registration failed' });
   }
 });
@@ -68,7 +67,7 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({
       $or: [{ email: loginId.toLowerCase() }, { uid: loginId }],
       ...(role ? { role } : {})
-    });
+    }).select('+password');
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
 
     const stored = String(user.password || '');
@@ -77,16 +76,15 @@ router.post('/login', async (req, res) => {
     if (isBcryptHash) {
       valid = await bcrypt.compare(password, stored);
     } else if (stored.length > 0 && stored === password) {
-      // One-time migration for legacy plaintext credentials after successful authentication.
+      // Migrate legacy plaintext credentials after a successful login.
       user.password = await bcrypt.hash(password, 12);
       await user.save();
       valid = true;
     }
     if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
 
-    const publicUser = safeUser(user);
     const token = issueToken(user);
-    return res.json({ msg: 'Login successful', user: publicUser, token, expiresIn: 3600 });
+    return res.json({ msg: 'Login successful', user: safeUser(user), token, expiresIn: 3600 });
   } catch (error) {
     if (error && error.message && error.message.includes('JWT_SECRET')) {
       return res.status(503).json({ error: 'Authentication service is not configured' });
@@ -95,10 +93,9 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Admin-only user directory. Password hashes are never selected or returned.
 router.get('/admin/users', authenticate, requireRole('Admin'), async (req, res) => {
   try {
-    const users = await User.find({}, { password: 0 }).limit(100).lean();
+    const users = await User.find({}).select('-password').limit(100).lean();
     return res.json(users);
   } catch (error) {
     return res.status(500).json({ error: 'Unable to load users' });
