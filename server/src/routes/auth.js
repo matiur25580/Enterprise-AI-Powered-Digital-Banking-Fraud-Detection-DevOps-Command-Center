@@ -1,4 +1,5 @@
 const express = require('express');
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
@@ -12,7 +13,7 @@ function genUID(name, dob) {
   const first = (parts[0] || 'X')[0].toUpperCase();
   const last = (parts.length > 1 ? parts[parts.length - 1][0] : 'X').toUpperCase();
   const digits = String(dob || '01012000').replace(/\D/g, '').padEnd(8, '0').slice(0, 8);
-  return 'C' + first + last + digits.slice(0, 2) + digits.slice(2, 4) + digits.slice(4, 8);
+  return 'C' + first + last + digits.slice(0, 2) + digits.slice(2, 4) + digits.slice(4, 8) + crypto.randomBytes(3).toString('hex').toUpperCase();
 }
 
 function safeUser(user) {
@@ -52,7 +53,7 @@ router.post('/register', async (req, res) => {
     });
     return res.status(201).json({ msg: 'Registration successful', uid: user.uid, user: safeUser(user) });
   } catch (error) {
-    if (error && error.code === 11000) return res.status(409).json({ error: 'An account with this email or UID already exists' });
+    if (error && error.code === 11000) return res.status(409).json({ error: 'An account with this email already exists' });
     return res.status(500).json({ error: 'Registration failed' });
   }
 });
@@ -76,7 +77,6 @@ router.post('/login', async (req, res) => {
     if (isBcryptHash) {
       valid = await bcrypt.compare(password, stored);
     } else if (stored.length > 0 && stored === password) {
-      // Migrate legacy plaintext credentials after a successful login.
       user.password = await bcrypt.hash(password, 12);
       await user.save();
       valid = true;
