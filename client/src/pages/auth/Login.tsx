@@ -19,8 +19,9 @@ export default function Login(){
       if(!res.ok){ setErr(data.error||'Login failed'); return; }
       setMsg('Login successful! Redirecting...');
       localStorage.setItem('trustshield_user', JSON.stringify(data.user));
+      localStorage.setItem('trustshield_token', data.token);
       const r=data.user.role;
-      setTimeout(()=>{
+      window.setTimeout(()=>{
         if(r==='Admin') window.location.href='/admin';
         else if(r==='RiskManager') window.location.href='/riskmanager';
         else if(r==='SupportAgent') window.location.href='/supportagent';
