@@ -26,11 +26,15 @@ async function refreshSession(): Promise<boolean> {
   }
 }
 
-async function request(path: string, init: RequestInit, retry = true) {
-  const headers = { ...(init.headers || {}), ...authHeaders() };
-  let response = await fetch(API + path, { ...init, headers, credentials: "include" });
+async function request(path: string, init: RequestInit, retry = true): Promise<Response> {
+  const buildHeaders = () => {
+    const headers = new Headers(init.headers || {});
+    Object.entries(authHeaders()).forEach(([key, value]) => headers.set(key, value));
+    return headers;
+  };
+  let response = await fetch(API + path, { ...init, headers: buildHeaders(), credentials: "include" });
   if (response.status === 401 && retry && await refreshSession()) {
-    response = await fetch(API + path, { ...init, headers: { ...(init.headers || {}), ...authHeaders() }, credentials: "include" });
+    response = await fetch(API + path, { ...init, headers: buildHeaders(), credentials: "include" });
   }
   return response;
 }
