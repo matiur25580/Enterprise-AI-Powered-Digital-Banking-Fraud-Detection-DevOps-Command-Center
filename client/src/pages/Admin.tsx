@@ -36,25 +36,8 @@ export default function Admin() {
           <button onClick={()=>setTheme(dark?'light':'dark')} style={{padding:'8px 16px',borderRadius:'8px'}}>🌙/☀️</button>
         </div>
       </div>
-      <div style={{display:'flex',gap:'12px',flexWrap:'wrap',margin:'12px 0'}}>
-        <div style={stat}><h3 style={{margin:0,color:'#2563eb'}}>2,847</h3><p style={{margin:0,fontSize:'12px'}}>Total Users</p></div>
-        <div style={stat}><h3 style={{margin:0,color:'#16a34a'}}>.2M</h3><p style={{margin:0,fontSize:'12px'}}>Total Volume</p></div>
-        <div style={stat}><h3 style={{margin:0,color:'#dc2626'}}>12</h3><p style={{margin:0,fontSize:'12px'}}>Fraud Alerts</p></div>
-        <div style={stat}><h3 style={{margin:0,color:'#7c3aed'}}>99.9%</h3><p style={{margin:0,fontSize:'12px'}}>Uptime</p></div>
-      </div>
-      <div style={card}>
-        <h3>🏦 Branch Performance</h3>
-        <p>📍 Kolkata Main — .8M • 24 staff • <span style={{color:'#16a34a'}}>▲ 12%</span></p>
-        <p>📍 Delhi South — .2M • 18 staff • <span style={{color:'#16a34a'}}>▲ 8%</span></p>
-        <p>📍 Mumbai West — .2M • 21 staff • <span style={{color:'#dc2626'}}>▼ 3%</span></p>
-      </div>
-      <div style={card}>
-        <h3>⚡ Quick Actions</h3>
-        <div style={{display:'flex',gap:'10px',flexWrap:'wrap'}}>
-          <button onClick={()=>setMsg('Staff list loaded: '+users.length+' users')} style={{flex:1,padding:'12px',borderRadius:'10px',border:'none',background:'#2563eb',color:'#fff',fontWeight:'bold'}}>👥 Manage Staff</button>
-          <button onClick={()=>{const csv='Email,Role,UID\n'+users.map((u:any)=>u.email+','+u.role+','+u.uid).join('\n'); const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='audit.csv'; a.click(); setMsg('Audit log exported');}} style={{flex:1,padding:'12px',borderRadius:'10px',border:'none',background:'#16a34a',color:'#fff',fontWeight:'bold'}}>📋 Export Audit</button>
-          <button onClick={()=>setMsg('Compliance: '+stats.total+' total users, '+stats.customers+' customers, '+stats.admins+' admins - Report generated')} style={{flex:1,padding:'12px',borderRadius:'10px',border:'none',background:'#7c3aed',color:'#fff',fontWeight:'bold'}}>📊 Compliance</button>
-        </div>
+      <div style={{ ...card, border: '1px solid #f59e0b', color: dark ? '#fde68a' : '#92400e' }}>
+        <b>Limited admin preview:</b> only the user directory below is loaded from the API. Transaction volume, fraud alerts, branch performance, uptime, staff management and compliance metrics are not connected to live services and are not displayed as real data.
       </div>
       <div style={card}>
         <h3>User Management ({users.length})</h3>
