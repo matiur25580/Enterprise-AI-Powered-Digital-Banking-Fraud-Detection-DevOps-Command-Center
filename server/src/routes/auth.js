@@ -7,6 +7,7 @@ const router = express.Router();
 const User = require('../models/User');
 const RefreshSession = require('../models/RefreshSession');
 const PasswordResetChallenge = require('../models/PasswordResetChallenge');
+const { recordSecurityEvent, hashSubject } = require('../security/audit');
 const { authenticate, requireRole } = require('../middleware/auth');
 const { rateLimit } = require('../middleware/rateLimit');
 
@@ -136,9 +137,11 @@ router.post('/login', loginLimit, async (req, res) => {
     if (role && !ALLOWED_LOGIN_ROLES.includes(role)) return res.status(400).json({ error: 'Invalid role' });
     const user = await User.findOne({ $or: [{ email: loginId.toLowerCase() }, { uid: loginId }], ...(role ? { role } : {}) }).select('+password');
     if (!user || !/^\\$2[aby]\\$\\d{2}\\$/.test(String(user.password || '')) || !(await bcrypt.compare(password, user.password))) {
+      await recordSecurityEvent(req, { action: 'auth.login', outcome: 'failure', subjectHash: hashSubject(loginId), details: { reason: 'invalid_credentials' } });
       return res.status(401).json({ error: 'Invalid credentials. Legacy accounts require the documented password migration first.' });
     }
     const csrfToken = await createRefreshSession(user, req, res);
+    await recordSecurityEvent(req, { actorUserId: user._id, action: 'auth.login', outcome: 'success' });
     const token = issueAccessToken(user);
     return res.json({ msg: 'Login successful', user: safeUser(user), token, expiresIn: ACCESS_TTL_SECONDS, csrfToken });
   } catch (error) {
@@ -158,6 +161,7 @@ router.post('/refresh', refreshLimit, async (req, res) => {
       return res.status(401).json({ error: 'Refresh session is invalid or expired' });
     }
     if (existing.revokedAt || existing.replacedByHash) {
+      await recordSecurityEvent(req, { actorUserId: existing.userId, action: 'auth.refresh_replay', outcome: 'blocked', details: { familyId: existing.familyId } });
       await revokeFamily(existing);
       clearRefreshCookies(res);
       return res.status(401).json({ error: 'Refresh-token reuse detected. All sessions in this token family were revoked.' });
@@ -286,6 +290,7 @@ router.post('/password/reset', otpVerifyLimit, async (req, res) => {
     const updated = await User.updateOne({ _id: challenge.userId, email }, { $set: { password: passwordHash }, $inc: { tokenVersion: 1 } });
     if (updated.modifiedCount !== 1) return res.status(400).json({ error: 'Unable to reset password for this account' });
     await RefreshSession.updateMany({ userId: challenge.userId, revokedAt: null }, { $set: { revokedAt: new Date() } });
+    await recordSecurityEvent(req, { actorUserId: challenge.userId, action: 'auth.password_reset', outcome: 'success' });
     await PasswordResetChallenge.updateMany({ userId: challenge.userId, consumedAt: null }, { $set: { consumedAt: new Date() } });
     return res.json({ msg: 'Password reset successful. Sign in with your new password.' });
   } catch (error) {
@@ -301,6 +306,7 @@ async function revokeUserSessions(userId) {
 router.post('/logout', authenticate, async (req, res) => {
   try {
     await revokeUserSessions(req.user.id);
+    await recordSecurityEvent(req, { actorUserId: req.user.id, action: 'auth.logout', outcome: 'success' });
     clearRefreshCookies(res);
     return res.json({ msg: 'All sessions revoked. Please sign in again.' });
   } catch (error) { return res.status(500).json({ error: 'Unable to revoke session' }); }
