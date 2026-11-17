@@ -1,9 +1,11 @@
-const express=require('express');
-const r=express.Router();
-r.get('/wall',(req,res)=>res.json({
-  volume:[120,180,150,220,190,240,200],
-  fraudHeat:[{city:'Mumbai',n:12},{city:'Delhi',n:8},{city:'Kolkata',n:5}],
-  branchPerf:[{b:'Mumbai HQ',t:4500},{b:'Delhi',t:2800}],
-  msg:'Analytics wall data'
+const express = require('express');
+const router = express.Router();
+
+// This placeholder is deliberately disabled: it returned mock or unscoped data.
+router.use((req, res) => res.status(501).json({
+  error: 'analytics is temporarily unavailable',
+  code: 'FEATURE_NOT_READY',
+  message: 'A persistent, authorized and audited implementation is required before this feature can be enabled.'
 }));
-module.exports=r;
+
+module.exports = router;
