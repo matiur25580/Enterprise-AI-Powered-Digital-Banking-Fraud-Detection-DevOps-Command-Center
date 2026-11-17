@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getDateTime } from './dateHelper';
 import SuccessToast from '../components/SuccessToast';
+import { logout } from '../utils/session';
 export default function Customer() {
   const [theme, setTheme] = useState('dark');
   const [dt, setDt] = useState(getDateTime());
@@ -31,7 +32,7 @@ export default function Customer() {
       <div style={{ display:'flex', justifyContent:'space-between', marginTop:'10px', flexWrap:'wrap' }}>
         <div><p style={{fontSize:'12px'}}>Date: {dt.dateStr} • {dt.timeStr}</p></div>
         <div>
-          <button onClick={()=>{localStorage.removeItem('trustshield_token');localStorage.removeItem('trustshield_user');window.location.href='/login';}} style={{marginRight:'8px',padding:'8px 14px',borderRadius:'8px'}}>Logout</button>
+          <button onClick={logout} style={{marginRight:'8px',padding:'8px 14px',borderRadius:'8px'}}>Logout</button>
           <button onClick={()=>setTheme(dark?'light':'dark')} style={{padding:'8px 14px',borderRadius:'8px'}}>🌙/☀️</button>
         </div>
       </div>
