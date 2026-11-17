@@ -1,7 +1,11 @@
-const express=require('express');
-const r=express.Router();
-let docs=[];
-r.post('/upload',(req,res)=>{ const d={id:'KYC'+Date.now(),...req.body,status:'Pending'}; docs.push(d); res.json({msg:'KYC document uploaded successfully',d}); });
-r.get('/list',(req,res)=>res.json(docs));
-r.post('/verify/:id',(req,res)=>{ const d=docs.find(x=>x.id===req.params.id); if(d) d.status='Verified'; res.json({msg:'KYC verified successfully',d}); });
-module.exports=r;
+const express = require('express');
+const router = express.Router();
+
+// Disabled until persistent storage, ownership checks, audit trails and integration tests exist.
+router.use((req, res) => res.status(501).json({
+  error: 'kyc is temporarily unavailable',
+  code: 'FEATURE_NOT_READY',
+  message: 'This operation is not implemented as a secure production workflow. No data or funds were changed.'
+}));
+
+module.exports = router;
