@@ -9,7 +9,7 @@ Configure these values in the backend hosting provider before deploying:
   `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`
 - `CLIENT_URL`: exact frontend origin(s), comma-separated. Do not use a wildcard.
 
-The API refuses to start when the JWT secret or MongoDB connection is missing. Existing access tokens are incompatible with the current token-version claim; users must sign in again. Access tokens expire after 15 minutes. Refresh tokens are opaque, stored only as SHA-256 hashes, rotated on use, and delivered in Secure/HttpOnly cookies in production with a CSRF double-submit token. Reuse of a rotated token revokes its token family and increments the account token version. Logout and logout-all revoke all refresh sessions and current access tokens.
+The API refuses to start when the JWT secret or MongoDB connection is missing. Existing access tokens are incompatible with the current token-version claim; users must sign in again. Access tokens expire after 15 minutes. Refresh tokens are opaque, stored only as SHA-256 hashes, rotated on use, and delivered in Secure/HttpOnly cookies with a CSRF double-submit token. `COOKIE_SECURE` defaults to true; set it to `false` only for local HTTP development. Never disable it in production. Reuse of a rotated token revokes its token family and increments the account token version. Logout and logout-all revoke all refresh sessions and current access tokens.
 
 ## Legacy password migration
 
