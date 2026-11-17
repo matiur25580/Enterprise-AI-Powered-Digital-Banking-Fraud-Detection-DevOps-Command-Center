@@ -34,7 +34,6 @@ Public registration creates Customer accounts only. To provision the first admin
 - Refresh-token rotation and replay detection are implemented at the API level. Validate cookie behavior end-to-end on the deployed frontend/API origins and configure HTTPS before enabling production use.
 - Login and registration use an in-process rate limiter. Replace it with a shared Redis-backed limiter before running multiple API instances.
 - Two-factor authentication for login and email ownership verification at registration are not implemented. The previous placeholder 2FA endpoint remains disabled.
-- Login and registration use an in-process rate limiter. Replace it with a shared Redis-backed limiter before running multiple API instances.
 - Customer balance, transfers, bills, cards and fixed deposits in the current UI are demonstration-only local state. No real funds are moved.
 - The API transfer endpoint only records a review request; it does not execute a financial transfer.
 - Security audit events are persisted for login success/failure, refresh-token replay, password reset and logout. Admin/RiskManager can read bounded, paginated audit records. Business audit coverage for financial operations, KYC, loans, disputes, deposits, compliance and staff workflows is not complete; those placeholder endpoints remain HTTP 501.
