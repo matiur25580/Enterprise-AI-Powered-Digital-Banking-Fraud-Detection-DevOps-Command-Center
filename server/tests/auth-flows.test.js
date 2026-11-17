@@ -1,6 +1,7 @@
 const authRouter = require('../src/routes/auth');
 const RefreshSession = require('../src/models/RefreshSession');
 const PasswordResetChallenge = require('../src/models/PasswordResetChallenge');
+const AuditEvent = require('../src/models/AuditEvent');
 
 describe('authentication security primitives', () => {
   beforeAll(() => { process.env.JWT_SECRET = 'unit-test-only-secret-with-at-least-32-characters'; });
@@ -35,6 +36,13 @@ describe('authentication security primitives', () => {
     const indexes = RefreshSession.schema.indexes();
     expect(indexes.some(([keys, options]) => keys.tokenHash === 1 && options.unique === true)).toBe(true);
     expect(indexes.some(([keys, options]) => keys.expiresAt === 1 && options.expireAfterSeconds === 0)).toBe(true);
+  });
+
+  test('audit event schema is append-only and indexed for investigations', () => {
+    expect(AuditEvent.schema.options.timestamps.updatedAt).toBe(false);
+    expect(AuditEvent.schema.path('action')).toBeDefined();
+    expect(AuditEvent.schema.path('outcome').enumValues).toEqual(['success', 'failure', 'blocked']);
+    expect(AuditEvent.schema.indexes().some(([keys]) => keys.createdAt === -1)).toBe(true);
   });
 
   test('password reset challenge has expiring, bounded-attempt fields', () => {
