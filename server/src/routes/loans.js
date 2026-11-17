@@ -1,7 +1,11 @@
-const express=require('express');
-const r=express.Router();
-let loans=[];
-r.post('/apply',(req,res)=>{ const l={id:'LN'+Date.now(),...req.body,status:'Pending'}; loans.push(l); res.json({msg:'Loan applied successfully',l}); });
-r.get('/list',(req,res)=>res.json(loans));
-r.post('/approve/:id',(req,res)=>{ const l=loans.find(x=>x.id===req.params.id); if(l) l.status='Approved'; res.json({msg:'Loan approved successfully',l}); });
-module.exports=r;
+const express = require('express');
+const router = express.Router();
+
+// Disabled until persistent storage, ownership checks, audit trails and integration tests exist.
+router.use((req, res) => res.status(501).json({
+  error: 'loans is temporarily unavailable',
+  code: 'FEATURE_NOT_READY',
+  message: 'This operation is not implemented as a secure production workflow. No data or funds were changed.'
+}));
+
+module.exports = router;
