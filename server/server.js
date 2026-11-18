@@ -58,6 +58,26 @@ app.use('/api/scheduled', require('./src/routes/scheduled'));
 app.use('/api/staff', requireRole('Admin'), require('./src/routes/staff'));
 app.use('/api/twofa', require('./src/routes/twofa'));
 
+app.use((req, res) => res.status(404).json({
+  error: 'Route not found',
+  code: 'NOT_FOUND'
+}));
+
+app.use((error, req, res, next) => {
+  if (res.headersSent) return next(error);
+  if (error && error.message === 'Origin not allowed by CORS') {
+    return res.status(403).json({ error: 'Origin is not allowed', code: 'CORS_ORIGIN_DENIED' });
+  }
+  if (error instanceof SyntaxError && error.status === 400 && 'body' in error) {
+    return res.status(400).json({ error: 'Invalid JSON request body', code: 'INVALID_JSON' });
+  }
+  if (error && error.status === 413) {
+    return res.status(413).json({ error: 'Request body is too large', code: 'PAYLOAD_TOO_LARGE' });
+  }
+  console.error('Unhandled API error:', error && error.message ? error.message : error);
+  return res.status(500).json({ error: 'Internal server error', code: 'INTERNAL_ERROR' });
+});
+
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: allowedOrigins, credentials: true } });
 io.use(async (socket, next) => {
