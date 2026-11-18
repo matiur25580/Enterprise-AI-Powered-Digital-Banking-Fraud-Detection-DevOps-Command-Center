@@ -17,13 +17,11 @@ A full-stack banking-operations portfolio application with role-based workspaces
 
 ### Banking workflows
 
-- Registration and sign-in with role-aware access.
-- Email OTP and authenticator-based two-factor workflows.
-- Transaction, transfer, deposit and wallet operations.
-- Loan and credit-score views.
-- KYC and dispute workflows.
-- Statements, notifications, branch and settlement modules.
-- Realtime notifications through Socket.IO.
+- Registration and sign-in with role-aware access and server-side session revocation.
+- Transaction request capture with a review-required default; this does not move funds.
+- Static demonstration currency conversion; no live FX quotes or wallet settlement.
+- Authenticated Socket.IO handshake.
+- Several planned modules (including deposits, loans, KYC, disputes, statements, notifications, settlement and 2FA) currently return HTTP 501 or are otherwise incomplete; they are not end-to-end workflows.
 
 ### Fraud intelligence — implementation status
 
@@ -121,13 +119,13 @@ npm run dev
 
 ## Security and responsible use
 
-The API uses an allowlisted CORS configuration, server-side JWT authentication, role checks and authenticated Socket.IO handshakes. The JWT secret must be a unique random value of at least 32 characters.
+The API uses an allowlisted CORS configuration, a 1 MB JSON body limit, baseline security response headers, structured 404/error responses, server-side JWT authentication, role checks and authenticated Socket.IO handshakes. Login and registration have per-process rate limits; use a shared Redis-backed limiter before running multiple API instances. The JWT secret must be a unique random value of at least 32 characters.
 
 This project is not connected to a regulated banking ledger, card network or real payment rail. Use synthetic data only. Before any real-world use, the system would require independent security review, threat modelling, financial reconciliation controls, audit validation, privacy/compliance review, penetration testing, operational monitoring and a validated fraud-model evaluation process.
 
 ## Verification status
 
-- Backend test command: `npm test` (Jest).
+- Backend test command: `npm test` (Jest). Unit coverage includes basic authentication and rate-limit middleware checks; comprehensive API, authorization and integration coverage is still required.
 - Frontend production build: `npm run build` from `client/`.
 - Do not interpret a successful local build as evidence of production or regulatory readiness.
 
