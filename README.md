@@ -1,94 +1,136 @@
-# 🏦 TrustShield Bank — Enterprise AI-Powered Digital Banking Fraud Detection DevOps Command Center
+# TrustShield Bank — Banking Operations & Fraud-Review Demo
 
-Live Demo: https://enterprise-ai-powered-digital-banki-wheat.vercel.app
-Backend API: https://enterprise-ai-powered-digital-banking.onrender.com
+A full-stack banking-operations portfolio application with role-based workspaces, account workflows, transaction features and administrative tooling. It is a **demonstration project**, not a licensed banking service, payment processor or production fraud-detection system.
 
-## 🚀 Overview
-Enterprise-grade digital banking platform with AI fraud detection, real-time monitoring, and 4 role-based command centers. Built with MERN stack, deployed on Vercel + Render.
+**Live demo:** https://enterprise-ai-powered-digital-banki-wheat.vercel.app  
+**Backend API:** https://enterprise-ai-powered-digital-banking.onrender.com  
+**Source:** https://github.com/matiur25580/Enterprise-AI-Powered-Digital-Banking-Fraud-Detection-DevOps-Command-Center
 
-## ✨ Features (23 Modules)
+## Product areas
 
-### 🔐 Authentication
-- Real DB registration with Unique Banking ID (e.g. CRS29081998-4521)
-- Separate success page with "Save it for future further reference"
-- Duplicate email check, unregistered login check
-- 6-digit OTP with 3-min validity, 2FA authenticator
-- Role-based login: Admin, RiskManager, SupportAgent, Customer
+### Roles and workspaces
 
-### 👑 Role Dashboards
-**Admin Command Center**
-- Banking overview cards for user activity, transaction volume and branch performance (dashboard figures are demo/sample data, not live financial records)
-- Staff management, audit log export, compliance reports
+- **Admin:** staff administration, audit exports, compliance views and platform oversight.
+- **Risk Manager:** fraud-review workspace and risk-alert workflows.
+- **Support Agent:** customer lookup, dispute support and KYC review.
+- **Customer:** account dashboard, transfers, deposits, loans, wallet and statement views.
 
-**AI Fraud Intelligence (RiskManager)**
-- Fraud alert workflow with illustrative risk scores
-- Block/Approve actions; model accuracy must be established with a documented evaluation dataset before being reported as a metric
+### Banking workflows
 
-**Customer Care Pro (SupportAgent)**
-- CSAT 4.8⭐, 360° customer search
-- Dispute tickets resolve/escalate, KYC verification
+- Registration and sign-in with role-aware access.
+- Email OTP and authenticator-based two-factor workflows.
+- Transaction, transfer, deposit and wallet operations.
+- Loan and credit-score views.
+- KYC and dispute workflows.
+- Statements, notifications, branch and settlement modules.
+- Realtime notifications through Socket.IO.
 
-**Premium Banking (Customer)**
-- Gradient balance card, instant transfer
-- Smart spending insights, AI savings tip, PDF statements
+### Fraud intelligence — implementation status
 
-### 🏦 Banking Modules
-- KYC document upload & verification
-- Dispute/Chargeback ticketing
-- Scheduled recurring payments
-- Staff management, fund transfer
-- Loans, wallet, deposits, credit score
-- Branch management, settlement, analytics
-- AI chatbot, notifications, real-time WebSocket alerts
+The repository includes fraud-review UI and related API modules, but the AI metrics endpoint is intentionally disabled and returns HTTP 501 until a persistent, authorized and audited implementation is ready. Dashboard sample figures and illustrative risk indicators must not be interpreted as live banking records or validated model predictions. No fraud-model accuracy claim is made.
 
-## 🛠️ Tech Stack
-**Frontend:** React 19, Vite, React Router v7, Recharts
-**Backend:** Node.js, Express, MongoDB, JWT, Nodemailer
-**DevOps:** Vercel (frontend), Render (backend), GitHub Actions CI
+## Technology
 
-## 📦 Setup
+| Layer | Stack |
+|---|---|
+| Frontend | React 19, Vite, React Router, Recharts |
+| Backend | Node.js, Express 5 |
+| Database | MongoDB, Mongoose |
+| Authentication | JWT, bcryptjs, role-based middleware |
+| Realtime | Socket.IO |
+| Email | Nodemailer |
+| Tests | Jest |
+| Deployment | Vercel frontend, Render API |
 
-### Backend
+## Architecture
+
+```text
+React + Vite client
+       |
+       | HTTPS / JSON API / JWT
+       v
+Express API
+  ├── Authentication and role authorization
+  ├── Banking, transactions and account modules
+  ├── KYC, disputes and compliance modules
+  ├── Audit and reporting modules
+  └── Authenticated Socket.IO gateway
+       |
+       v
+MongoDB / Mongoose
+```
+
+## Run locally
+
+### Requirements
+
+- Node.js compatible with the package dependencies
+- npm
+- MongoDB instance
+
+### 1. Backend
+
 ```bash
 cd server
 npm install
-# .env
-MONGO_URI=your_mongo_uri
-JWT_SECRET=your_secret
-EMAIL_USER=your_gmail
-EMAIL_PASS=your_app_password
+```
+
+Create `server/.env`:
+
+```dotenv
+MONGO_URI=mongodb://127.0.0.1:27017/trustshield
+JWT_SECRET=replace-with-a-unique-random-secret-at-least-32-characters
+EMAIL_USER=your_email
+EMAIL_PASS=your_email_app_password
 PORT=5000
-CLIENT_URL=https://your-vercel-url
+CLIENT_URL=http://localhost:5173
+```
+
+Start the API:
+
+```bash
 npm start
 ```
 
-### Frontend
+Run backend tests:
+
+```bash
+npm test
+```
+
+### 2. Frontend
+
+In a second terminal:
+
 ```bash
 cd client
 npm install
-# .env
-VITE_API_URL=https://your-render-url
+```
+
+Create `client/.env`:
+
+```dotenv
+VITE_API_URL=http://localhost:5000
+```
+
+Start the client:
+
+```bash
 npm run dev
 ```
 
-## 🔑 Environment Variables
-| Variable | Description |
-|----------|-------------|
-| MONGO_URI | MongoDB Atlas URI |
-| JWT_SECRET | JWT signing secret |
-| EMAIL_USER | Gmail for OTP |
-| EMAIL_PASS | Gmail App Password |
-| VITE_API_URL | Backend Render URL |
+## Security and responsible use
 
-## 📊 Project Stats
-- 23 backend routes
-- 14 frontend routes
-- 4 role dashboards
-- 100% button clickable, all functions working
+The API uses an allowlisted CORS configuration, server-side JWT authentication, role checks and authenticated Socket.IO handshakes. The JWT secret must be a unique random value of at least 32 characters.
 
-## 👨‍💻 Author
-**Matiur Rahaman** — Full-Stack Developer
-GitHub: [@matiur25580](https://github.com/matiur25580)
+This project is not connected to a regulated banking ledger, card network or real payment rail. Use synthetic data only. Before any real-world use, the system would require independent security review, threat modelling, financial reconciliation controls, audit validation, privacy/compliance review, penetration testing, operational monitoring and a validated fraud-model evaluation process.
 
-## 📄 License
-MIT
+## Verification status
+
+- Backend test command: `npm test` (Jest).
+- Frontend production build: `npm run build` from `client/`.
+- Do not interpret a successful local build as evidence of production or regulatory readiness.
+
+## Maintainer
+
+**Matiur Rahaman** · [GitHub](https://github.com/matiur25580)
