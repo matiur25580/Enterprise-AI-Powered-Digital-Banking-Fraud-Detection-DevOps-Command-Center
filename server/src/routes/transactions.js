@@ -1,4 +1,5 @@
 const express = require('express');
+const { createHash } = require('crypto');
 const axios = require('axios');
 const Tx = require('../models/Transaction');
 const router = express.Router();
@@ -10,6 +11,21 @@ router.post('/transfer', async (req, res) => {
     const recipient = String((req.body && req.body.to) || '').trim();
     if (!Number.isFinite(amount) || amount <= 0 || amount > 100000000 || !recipient || recipient.length > 120) {
       return res.status(400).json({ error: 'A valid positive amount and recipient are required' });
+    }
+
+    const idempotencyKey = String(req.get('Idempotency-Key') || '').trim();
+    if (idempotencyKey && (idempotencyKey.length < 8 || idempotencyKey.length > 128 || !/^[A-Za-z0-9._:-]+$/.test(idempotencyKey))) {
+      return res.status(400).json({ error: 'Idempotency-Key must be 8-128 safe characters' });
+    }
+    const requestFingerprint = createHash('sha256').update(JSON.stringify({ amount, recipient })).digest('hex');
+    if (idempotencyKey) {
+      const existing = await Tx.findOne({ userId: req.user.id, idempotencyKey });
+      if (existing) {
+        if (existing.requestFingerprint !== requestFingerprint) {
+          return res.status(409).json({ error: 'Idempotency key was already used for a different transfer request', code: 'IDEMPOTENCY_KEY_REUSED' });
+        }
+        return res.status(202).json({ msg: 'Transfer request was already recorded. No funds have been moved.', tx: existing, idempotentReplay: true });
+      }
     }
 
     let fraudScore;
@@ -31,13 +47,29 @@ router.post('/transfer', async (req, res) => {
       to: recipient,
       amount,
       fraudScore,
-      status
+      status,
+      ...(idempotencyKey ? { idempotencyKey, requestFingerprint } : {})
     });
     return res.status(202).json({
       msg: 'Transfer request recorded for review. No funds have been moved.',
       tx
     });
   } catch (error) {
+    if (error && error.code === 11000 && req.get('Idempotency-Key')) {
+      try {
+        const key = String(req.get('Idempotency-Key')).trim();
+        const existing = await Tx.findOne({ userId: req.user.id, idempotencyKey: key });
+        const amount = Number(req.body && req.body.amount);
+        const recipient = String((req.body && req.body.to) || '').trim();
+        const fingerprint = createHash('sha256').update(JSON.stringify({ amount, recipient })).digest('hex');
+        if (existing && existing.requestFingerprint === fingerprint) {
+          return res.status(202).json({ msg: 'Transfer request was already recorded. No funds have been moved.', tx: existing, idempotentReplay: true });
+        }
+        if (existing) return res.status(409).json({ error: 'Idempotency key was already used for a different transfer request', code: 'IDEMPOTENCY_KEY_REUSED' });
+      } catch (lookupError) {
+        return res.status(500).json({ error: 'Unable to verify transfer request status' });
+      }
+    }
     return res.status(500).json({ error: 'Unable to record transfer request' });
   }
 });
