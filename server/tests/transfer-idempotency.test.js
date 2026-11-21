@@ -63,6 +63,28 @@ describe('transfer request idempotency', () => {
     expect(res.body.idempotentReplay).toBe(true);
   });
 
+  test('rejects transfer amounts with more than two decimal places', async () => {
+    const res = response();
+    await global.transferHandler(request('transfer-0001', 12.345), res);
+    expect(res.statusCode).toBe(400);
+    expect(Tx.create).not.toHaveBeenCalled();
+  });
+
+  test('rejects exponent notation instead of silently interpreting a money amount', async () => {
+    const res = response();
+    await global.transferHandler(request('transfer-0001', '1e3'), res);
+    expect(res.statusCode).toBe(400);
+    expect(Tx.create).not.toHaveBeenCalled();
+  });
+
+  test('accepts a valid decimal amount and stores its numeric value', async () => {
+    Tx.create.mockResolvedValue({ _id: 'tx-valid' });
+    const res = response();
+    await global.transferHandler(request('transfer-0001', '12.34'), res);
+    expect(res.statusCode).toBe(202);
+    expect(Tx.create).toHaveBeenCalledWith(expect.objectContaining({ amount: 12.34 }));
+  });
+
   test('rejects malformed idempotency keys', async () => {
     const res = response();
     await global.transferHandler(request('bad key'), res);
