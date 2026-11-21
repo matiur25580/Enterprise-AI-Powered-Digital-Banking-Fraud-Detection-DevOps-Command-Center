@@ -13,7 +13,7 @@ router.post('/transfer', async (req, res) => {
       : typeof rawAmount === 'string' ? rawAmount.trim() : '';
     // Transfers are recorded in major currency units with at most two decimal places.
     // Reject exponent notation and excess precision instead of silently rounding money.
-    if (!/^(?:0|[1-9]\\d{0,8})(?:\\.\\d{1,2})?$/.test(amountText)) {
+    if (!/^(?:0|[1-9]\d{0,8})(?:\.\d{1,2})?$/.test(amountText)) {
       return res.status(400).json({ error: 'Amount must be a positive value with no more than two decimal places' });
     }
     const amount = Number(amountText);
