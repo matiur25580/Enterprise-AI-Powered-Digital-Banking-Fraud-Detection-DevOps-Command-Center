@@ -132,3 +132,80 @@ This project is not connected to a regulated banking ledger, card network or rea
 ## Maintainer
 
 **Matiur Rahaman** · [GitHub](https://github.com/matiur25580)
+
+
+## Dashboard Gallery
+
+Explore 12 illustrative banking and fraud-operations workspaces for operations, transaction monitoring, alerts, transfers, customer accounts, KYC, risk scoring, disputes, reconciliation, access security, service reliability and analytics. Sample values are for UI illustration only; they are not live banking records, risk scores or financial balances.
+
+### 01. Banking Operations Overview
+
+Account activity, transfer status, service health and risk signals.
+
+![Banking Operations Overview dashboard preview](docs/readme-dashboard-gallery/dashboard-01.svg)
+
+### 02. Transaction Monitoring
+
+Transaction volumes, velocity patterns, review queues and risk distribution.
+
+![Transaction Monitoring dashboard preview](docs/readme-dashboard-gallery/dashboard-02.svg)
+
+### 03. Fraud Detection Alerts
+
+Alert severity, suspicious patterns, analyst review and case outcomes.
+
+![Fraud Detection Alerts dashboard preview](docs/readme-dashboard-gallery/dashboard-03.svg)
+
+### 04. Transfer Activity
+
+Transfer requests, idempotency outcomes, validation and processing states.
+
+![Transfer Activity dashboard preview](docs/readme-dashboard-gallery/dashboard-04.svg)
+
+### 05. Customer & Account Overview
+
+Customer profiles, account status, verification and service activity.
+
+![Customer & Account Overview dashboard preview](docs/readme-dashboard-gallery/dashboard-05.svg)
+
+### 06. KYC & Identity Review
+
+Identity verification queue, document review and compliance status.
+
+![KYC & Identity Review dashboard preview](docs/readme-dashboard-gallery/dashboard-06.svg)
+
+### 07. Risk Scoring Workspace
+
+Risk signal distribution, model score trends and review prioritization.
+
+![Risk Scoring Workspace dashboard preview](docs/readme-dashboard-gallery/dashboard-07.svg)
+
+### 08. Dispute & Case Management
+
+Dispute intake, case ownership, investigation stages and resolution.
+
+![Dispute & Case Management dashboard preview](docs/readme-dashboard-gallery/dashboard-08.svg)
+
+### 09. Operational Reconciliation
+
+Transfer request records, reconciliation exceptions and daily summaries.
+
+![Operational Reconciliation dashboard preview](docs/readme-dashboard-gallery/dashboard-09.svg)
+
+### 10. Access & Security Monitoring
+
+Authentication events, session risks, access roles and security reviews.
+
+![Access & Security Monitoring dashboard preview](docs/readme-dashboard-gallery/dashboard-10.svg)
+
+### 11. DevOps & Service Reliability
+
+API health, latency, error rates, background jobs and availability.
+
+![DevOps & Service Reliability dashboard preview](docs/readme-dashboard-gallery/dashboard-11.svg)
+
+### 12. Fraud & Banking Analytics
+
+Fraud trends, transfer mix, customer risk and operational KPIs.
+
+![Fraud & Banking Analytics dashboard preview](docs/readme-dashboard-gallery/dashboard-12.svg)
