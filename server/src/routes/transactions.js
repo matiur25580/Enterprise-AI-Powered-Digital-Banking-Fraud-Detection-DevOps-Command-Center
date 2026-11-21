@@ -7,9 +7,18 @@ const router = express.Router();
 // This prototype records a transfer request only. It does not move funds or debit an account.
 router.post('/transfer', async (req, res) => {
   try {
-    const amount = Number(req.body && req.body.amount);
+    const rawAmount = req.body && req.body.amount;
+    const amountText = typeof rawAmount === 'number'
+      ? String(rawAmount)
+      : typeof rawAmount === 'string' ? rawAmount.trim() : '';
+    // Transfers are recorded in major currency units with at most two decimal places.
+    // Reject exponent notation and excess precision instead of silently rounding money.
+    if (!/^(?:0|[1-9]\\d{0,8})(?:\\.\\d{1,2})?$/.test(amountText)) {
+      return res.status(400).json({ error: 'Amount must be a positive value with no more than two decimal places' });
+    }
+    const amount = Number(amountText);
     const recipient = String((req.body && req.body.to) || '').trim();
-    if (!Number.isFinite(amount) || amount <= 0 || amount > 100000000 || !recipient || recipient.length > 120) {
+    if (!Number.isFinite(amount) || amount <= 0 || amount > 100000000 || !Number.isSafeInteger(Math.round(amount * 100)) || !recipient || recipient.length > 120) {
       return res.status(400).json({ error: 'A valid positive amount and recipient are required' });
     }
 
