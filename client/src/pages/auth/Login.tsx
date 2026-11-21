@@ -13,13 +13,14 @@ export default function Login(){
     setErr(''); setMsg('');
     try{
       const api=(import.meta as any).env.VITE_API_URL||'http://localhost:5000';
-      const res=await fetch(api+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},
+      const res=await fetch(api+'/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'}, credentials:'include',
         body:JSON.stringify({email,password:pw,role})});
       const data=await res.json();
       if(!res.ok){ setErr(data.error||'Login failed'); return; }
       setMsg('Login successful! Redirecting...');
       localStorage.setItem('trustshield_user', JSON.stringify(data.user));
       localStorage.setItem('trustshield_token', data.token);
+      if(data.csrfToken) sessionStorage.setItem('trustshield_csrf', data.csrfToken);
       const r=data.user.role;
       window.setTimeout(()=>{
         if(r==='Admin') window.location.href='/admin';

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getDateTime } from './dateHelper';
 import SuccessToast from '../components/SuccessToast';
 import { logout } from '../utils/session';
+import { apiGet } from '../utils/api';
 export default function Admin() {
   const [theme, setTheme] = useState('dark');
   const [dt, setDt] = useState(getDateTime());
@@ -16,13 +17,11 @@ export default function Admin() {
   const stat={flex:1,minWidth:'140px',background:dark?'#1e293b':'#f1f5f9',padding:'16px',borderRadius:'12px',textAlign:'center' as const};
   useEffect(()=>{ const t=setInterval(()=>setDt(getDateTime()),1000); return ()=>clearInterval(t); },[]);
   useEffect(()=>{
-    const api=(import.meta as any).env.VITE_API_URL||'http://localhost:5000';
     const token=localStorage.getItem('trustshield_token');
     if(!token || user.role!=='Admin'){ window.location.href='/login'; return; }
-    fetch(api+'/api/auth/admin/users',{headers:{Authorization:'Bearer '+token}})
-      .then(r=>{ if(r.status===401||r.status===403){window.location.href='/login';return [];} return r.json(); })
+    apiGet('/api/auth/admin/users')
       .then(d=>{ if(Array.isArray(d)){ setUsers(d); setStats({total:d.length, customers:d.filter((u:any)=>u.role==='Customer').length, admins:d.filter((u:any)=>u.role==='Admin').length}); } })
-      .catch(()=>{});
+      .catch(()=>{ window.location.href='/login'; });
   },[]);
   return (
     <div style={{ background: dark?'#0a0a0a':'#f1f5f9', color: dark?'#fff':'#000', minHeight:'100vh', padding:'20px' }}>
