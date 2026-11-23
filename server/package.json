@@ -14,15 +14,15 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "axios": "^1.21.0",
+    "axios": "^1.21.1",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
-    "dotenv": "^18.0.9",
+    "dotenv": "^18.0.10",
     "express": "^5.3.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.11.4",
-    "nodemailer": "^10.2.1",
-    "pdfkit": "^0.20.2",
+    "mongoose": "^9.12.2",
+    "nodemailer": "^10.6.1",
+    "pdfkit": "^0.21.0",
     "socket.io": "^4.8.4"
   },
   "devDependencies": {
