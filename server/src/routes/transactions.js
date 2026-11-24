@@ -5,6 +5,7 @@ const Tx = require('../models/Transaction');
 const router = express.Router();
 
 // This prototype records a transfer request only. It does not move funds or debit an account.
+// Records a transfer intent for fraud review; this prototype deliberately does not move account funds.
 router.post('/transfer', async (req, res) => {
   try {
     const rawAmount = req.body && req.body.amount;
