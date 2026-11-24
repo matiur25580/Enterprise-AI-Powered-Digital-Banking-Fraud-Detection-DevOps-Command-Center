@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+// Central secret validation prevents the API and Socket.IO from accepting weak or placeholder signing keys.
 function getJwtSecret() {
   const secret = process.env.JWT_SECRET;
   if (!secret || secret.length < 32 || /replace-with|your_strong_secret|change-me/i.test(secret)) {
