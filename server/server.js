@@ -9,6 +9,7 @@ const { authenticate, requireRole, getJwtSecret } = require('./src/middleware/au
 const User = require('./src/models/User');
 
 dotenv.config();
+// API bootstrap: apply shared security controls, mount banking modules, and attach authenticated realtime channels.
 const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
