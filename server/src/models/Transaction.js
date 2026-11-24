@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// Transaction records preserve the fraud-review outcome and an idempotency fingerprint for safe retries.
 const transactionSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   from: { type: String, required: true },
